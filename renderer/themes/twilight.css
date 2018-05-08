@@ -26,12 +26,17 @@
   color: #c2c2c2;
 }
 
-.twilight_theme .group_name {
-  color: #ebebeb;
+.twilight_theme .group_name,
+.twilight_theme .friend_name,
+.twilight_theme .post_name {
+  color: #d9d9d9;
 }
 
 .twilight_theme .group_type,
-.twilight_theme .group_subs {
+.twilight_theme .group_subs,
+.twilight_theme .friend_occupation,
+.twilight_theme .post_time,
+.twilight_theme .post_signer {
   color: #919191;
 }
 

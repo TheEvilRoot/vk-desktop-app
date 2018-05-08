@@ -26,12 +26,17 @@
   color: #c2c2c2;
 }
 
-.blue_theme .group_name {
-  color: #ebebeb;
+.blue_theme .group_name,
+.blue_theme .friend_name,
+.blue_theme .post_name {
+  color: #d9d9d9;
 }
 
 .blue_theme .group_type,
-.blue_theme .group_subs {
+.blue_theme .group_subs,
+.blue_theme .friend_occupation,
+.blue_theme .post_time,
+.blue_theme .post_signer {
   color: #919191;
 }
 

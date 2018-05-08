@@ -41,11 +41,9 @@ var getNews = () => {
     count: 15,
     func_v: 5,
     start_from: start_from,
-    filters: 'post,photo,photo_tag',
+    filters: 'post,photo',
     fields: 'id,verified,first_name,first_name_dat,first_name_acc,last_name,last_name_acc,last_name_gen,sex,screen_name,photo_50,photo_100,online,video_files'
   }, data => {
-    qs('.news_content_err').style.display = 'none';
-
     if (!data.response.next_from) {
       qs('.news_content_err').style.display = '';
       qs('.news_inet_err').innerHTML = `Показаны последние новости`;
@@ -57,16 +55,17 @@ var getNews = () => {
 
     for (let i = 0; i < data.response.items.length; i++) {
       let item = data.response.items[i],
+          verified = '', sign = '', head_data,
+          head_name, text = '', head_update = '',
           time = new Date(item.date * 1000),
           this_time = new Date,
           parsed_time = '',
           zero = time.getMinutes() < 10 ? '0' : '',
           mins = zero + time.getMinutes(),
-          text = item.text.replace(/\n/g, '<br>'),
-          months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля',
-                    'августа', 'сентября', 'октября', 'ноября', 'декабря'
-                   ],
-          verified = '', sign = '', head_data, head_name;
+          months = [
+            'января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
+            'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+          ];
 
       if (item.caption && item.caption.type == "explorebait") continue;
 
@@ -97,37 +96,70 @@ var getNews = () => {
         }
       }
       
-      if(item.copy_history) {
-        text += '<br>*репост*';
-      }
+      if(item.type == 'post') {
+        text = item.text;
+        
+        if(item.copy_history) {
+          if(text) text += '\n';
+          text += '*репост*';
+        }
+        
+        if(item.post_source.data == 'profile_photo') {
+          head_update = ` <span class='post_time'>
+                        обновил${head_data.sex == 1 ? 'a' : ''}
+                        фотографию на странице:</span>`;
+        }
+        
+        if(item.final_post && !text) {
+          head_update = ` <span class='post_time'>
+                        молча удалил${head_data.sex == 1 ? 'a' : ''}
+                        свою страницу.</span>`;
+        } else if(item.final_post) {
+          head_update = ` <span class='post_time'>
+                        удалил${head_data.sex == 1 ? 'a' : ''}
+                        свою страницу со словами:</span>`;
+        }
 
-      if (item.attachments) {
-        for (let j = 0; j < item.attachments.length; j++) {
-          let attach = item.attachments[j];
+        if (item.attachments) {
+          if(text) text += '\n';
           
-          text += '<br>';
+          for (let j = 0; j < item.attachments.length; j++) {
+            let attach = item.attachments[j];
 
-          if (attach.type == 'photo') {
-            text += `<img src="${attach.photo.photo_604}" class="post_img">`;
-          } else if(attach.type == 'audio') {
-            text += '*аудиозапись*';
-          } else if(attach.type == 'article') {
-            text += '*стилизированная ссылка*';
-          } else if(attach.type == 'poll') {
-            text += '*голосование*';
-          } else if(attach.type == 'video') {
-            text += '*Видеозапись*';
-          } else if(attach.type == 'doc') {
-            text += '*Документ*';
-          } else {
-            text += `Неизвестный тип прикрепления.<br>
-                     Скиньте текст ниже <a href="https://vk.com/danyadev">разработчику</a>.<br>
-                     ${JSON.stringify(attach)}
-                    `;
+            if (attach.type == 'photo') {
+              text += `<img src="${attach.photo.photo_604}" class="post_img">`;
+            } else if(attach.type == 'audio') {
+              text += '*аудиозапись*';
+            } else if(attach.type == 'article') {
+              text += '*стилизированная ссылка*';
+            } else if(attach.type == 'poll') {
+              text += '*голосование*';
+            } else if(attach.type == 'video') {
+              text += '*Видеозапись*';
+            } else if(attach.type == 'doc') {
+              text += '*Документ*';
+            } else {
+              text += `Неизвестный тип прикрепления.\n
+                       Скиньте текст ниже разработчику (https://vk.com/danyadev):\n
+                       ${JSON.stringify(attach)}
+                      `;
+            }
+            
+            if(j != item.attachments.length-1) text += '\n';
           }
         }
+      } else if(item.type == 'photo') {
+        head_update = ` <span class='post_time'>
+                      добавил${head_data.sex == 1 ? 'a' : ''}
+                      новую фотографию</span>`;
+                      
+        for(let j=0; j<item.photos.count; j++) {
+          let photo = item.photos.items[j];
+          
+          text += `<img src="${photo.photo_604}" class="post_img">`;
+        }
       }
-
+      
       if (emoji.isEmoji(text)) text = emoji.replace(text);
 
       if (item.signer_id) {
@@ -136,12 +168,14 @@ var getNews = () => {
         sign = `<br><div class='post_signer'>${signer.first_name} ${signer.last_name}</div>`;
       }
 
+      text = text.replace(/\n/g, '<br>');
+
       news_content.innerHTML += `
         <div class='news_block theme_block'>
           <div class='post_header'>
             <img src="${head_data.photo_50}" class="post_header_img">
             <div class="post_names">
-              <div class="post_name">${head_name} ${verified}</div>
+              <div class="post_name">${head_name} ${verified} ${head_update}</div>
               <div class="post_time">${parsed_time}</div>
             </div>
           </div>

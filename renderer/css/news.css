@@ -51,16 +51,16 @@
 .post_name {
   color: #2a5885;
   cursor: pointer;
-  font-weight: 500;
 }
 
 .post_time {
   color: #656565;
   padding-top: 2px;
+  font-weight: normal;
 }
 
 .post_content {
-  padding: 10px;
+  padding: 10px 10px 8px;
 }
 
 .post_img {

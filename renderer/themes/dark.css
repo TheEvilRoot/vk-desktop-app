@@ -26,12 +26,17 @@
   color: #bbb;
 }
 
-.dark_theme .group_name {
-  color: #ebebeb;
+.dark_theme .group_name,
+.dark_theme .friend_name,
+.dark_theme .post_name,
+.dark_theme .post_signer {
+  color: #d9d9d9;
 }
 
 .dark_theme .group_type,
-.dark_theme .group_subs {
+.dark_theme .group_subs,
+.dark_theme .friend_occupation,
+.dark_theme .post_time {
   color: #919191;
 }
 
