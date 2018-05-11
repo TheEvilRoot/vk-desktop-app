@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright © 2018 danyadev
   Лицензия - Apache 2.0
 
@@ -9,18 +9,18 @@
    github: https://github.com/danyadev/vk-desktop-app
 */
 
-process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = true;
-
 try {
   require('./../reload/node_modules/electron-reload')(__dirname, {
     ignored: [
+      __dirname + '/docs',
       __dirname + '/.git',
       __dirname + '/index.js',
-      __dirname + '/renderer/users.json',
-      __dirname + '/renderer/settings.json',
+      __dirname + '/dev.json',
       __dirname + '/README.md',
+      __dirname + '/package.json',
       __dirname + '/node_modules',
-      __dirname + '/package.json'
+      __dirname + '/renderer/users.json',
+      __dirname + '/renderer/settings.json'
     ]
   });
 } catch(e) {};
@@ -43,14 +43,14 @@ app.on('ready', () => {
     minHeight: 480,
     show: false
   }
-  
+
   if(settings.window.x && settings.window.y) {
     opts.x = settings.window.x < 0 ? 0 : settings.window.x;
     opts.y = settings.window.y < 0 ? 0 : settings.window.y;
   }
-  
+
   win = new BrowserWindow(opts);
-  
+
   win.setMenu(null); // удаление меню
   win.loadFile('renderer/index.html');
   win.on('ready-to-show', win.show);

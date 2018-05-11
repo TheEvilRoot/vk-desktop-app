@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright © 2018 danyadev
   Лицензия - Apache 2.0
 
@@ -12,12 +12,12 @@
 'use strict';
 
 const { dialog } = require('electron').remote;
-const keys = utils.keys;
+const { keys } = utils;
 
 var settings_tabs = qs('.settings_tabs'),
     settings_content_block = qs('.settings_content_block'),
     settings_main = qs('.settings_main');
-    
+
 settings_tabs.children[0].classList.add('settings_tab_active');
 settings_content_block.children[0].classList.add('settings_content_active');
 
@@ -33,43 +33,43 @@ settings_content_block.children[0].classList.add('settings_content_active');
     settings_content_block.children[tab].classList.add('settings_content_active');
   });
 });
-    
+
 var initSelect = (sel, init, change) => {
   let select = qs(sel),
       list = select.children[1],
       selected = select.children[0].children[1];
-      
+
   init(sel, list, selected);
-  
+
   select.addEventListener('click', () => {
     if(qs(`${sel}.select_opened`)) {
       select.classList.remove('select_opened');
     } else {
       select.classList.add('select_opened');
-      
+
       let closeSelect = () => {
         let sel_ = sel.replace(/\./, '');
-        
+
         if(!(!event.path[1].classList.contains(`${sel_}`) && event.path[2].classList.contains(`${sel_}`)) &&
            !(event.path[1].classList.contains(`${sel_}`) && !event.path[2].classList.contains(`${sel_}`))) {
           select.classList.remove('select_opened');
           document.body.removeEventListener('click', closeSelect);
         }
       }
-      
+
       document.body.addEventListener('click', closeSelect);
     }
   });
-  
+
   list.addEventListener('mousemove', () => {
     qs(`${sel} .active`).classList.remove('active');
-    
+
     event.target.classList.add('active');
   });
-  
+
   list.addEventListener('click', () => {
     selected.innerHTML = event.target.innerHTML;
-    
+
     change(event, list);
   });
 }
@@ -83,10 +83,8 @@ settings_main.style.display = 'none';
 vkapi.method('execute.getAccountSettings', null, data => {
   settings_main.style.display = '';
   qs('.settings_block_err').style.display = 'none';
-  
+
   qs('.settings_nick').value = data.response.domain;
-  qs('.settings_email').placeholder = data.response.email;
-  qs('.settings_phone').placeholder = data.response.phone;
 }, 'settings_main_err');
 
 qs('.input').addEventListener('click', () => qs('.input_input').focus());
@@ -103,18 +101,18 @@ qs('.logout').addEventListener('click', () => {
     if(!btn) {
       settings_json.settings.theme = 'white';
       settings_json.settings.def_tab = 0;
-      
+
       let users_json = JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8'));
-      
+
       delete users_json[danyadev.user.id];
-      
+
       let keys = Object.keys(users_json);
-      
+
       if(keys.length) users_json[keys[0]].active = true;
-      
+
       fs.writeFileSync(USERS_PATH, JSON.stringify(users_json, null, 2));
       fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
-      
+
       getCurrentWindow().reload();
     }
   });
@@ -126,22 +124,22 @@ initSelect('.change_theme', (sel, list, selected) => {
   let optionBlock = '',
       themeList = fs.readdirSync(utils.app_path + '/renderer/themes')
                     .map(item => item.replace(/\.css/, ''));
-  
+
   themeList.unshift('white');
-  
+
   let themeID = themeList.indexOf(settings_json.settings.theme);
-  
+
   for(let i=0; i<themeList.length; i++) {
     optionBlock += `<div class="option theme_block">${themeList[i]}</div>`
   }
-  
+
   list.innerHTML = optionBlock;
   selected.innerHTML = settings_json.settings.theme;
-  
+
   list.children[themeID].classList.add('active');
 }, event => {
   settings_json.settings.theme = event.target.innerHTML;
-  
+
   theme(event.target.innerHTML);
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
 });
@@ -155,42 +153,21 @@ initSelect('.change_def_tab', (sel, list, selected) => {
     'Видеозаписи', 'Настройки'
   ],  optionBlock = '',
       defTabID = settings_json.settings.def_tab;
-  
+
   for(let i=0; i<menu_list.length; i++) {
     optionBlock += `<div class="option theme_block">${menu_list[i]}</div>`
   }
-  
+
   list.innerHTML = optionBlock;
   selected.innerHTML = menu_list[defTabID];
-  
+
   list.children[defTabID].classList.add('active');
 }, (event, list) => {
   settings_json.settings.def_tab = [].slice.call(list.children).indexOf(event.target);
-  
+
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
 });
 
-// var editOnline = data => {
-//   let users = JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8')), user;
-// 
-//   Object.keys(users).forEach(user_id => {
-//     if(users[user_id].active) user = users[user_id];
-//   });
-// 
-//   vkapi.resetOnline({
-//     grant_type: 'password',
-//     login: user.login,
-//     password: user.password,
-//     client_id: null,// айди выбранного приложения  keys[authInfo.platform[0]][0],
-//     client_secret: null, // секрет выбранного приложения keys[authInfo.platform[0]][1],
-//     '2fa_supported': true,
-//     scope: 'nohttps,all',
-//     force_sms: true
-//   }, data => {
-//     // туто применение/включение капчи/ввода кода из смс
-//   });
-// }
-// 
 module.exports = {
   load
 }

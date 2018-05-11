@@ -33,6 +33,7 @@ var audio = qs('.audio'),
     player_volume_wrap = qs('.player_volume_wrap'),
     player_volume_this = qs('.player_volume_this'),
     player_icon_repeat = qs('.player_icon_repeat'),
+    player_icon_recoms = qs('.player_icon_recoms '),
     settings_json = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf-8'));
 
 audio._play = audio.play;
@@ -86,7 +87,7 @@ var render = cb => {
     let audio_block;
 
     if(item.url) {
-      audio_block = `<div class='audio_item' src='${item.url}' `
+      audio_block = `<div class='audio_item' src='${item.url}' data-id='${item.id}'`
                   + `onclick='require("./js/modules/audio").toggleAudio(this, event)'>`;
     } else {
       audio_block = `<div class='audio_item_locked'
@@ -164,48 +165,6 @@ var renderNewItems = () => {
   }
 }
 
-player_icon_repeat.addEventListener('click', () => {
-  if(player_icon_repeat.classList.contains('active')) {
-    player_icon_repeat.classList.remove('active');
-
-    danyadev.audio.repeat = false;
-  } else {
-    player_icon_repeat.classList.add('active');
-
-    danyadev.audio.repeat = true;
-  }
-});
-
-qs('.shuffle').addEventListener('click', () => {
-  if(danyadev.audio.renderedItems % 15 != 0
-    && danyadev.audio.renderedItems != danyadev.audio.count) return;
-
-  danyadev.audio.track_id = 0;
-  danyadev.audio.renderedItems = 0;
-  danyadev.audio.repeat = false;
-
-  if(player_icon_repeat.classList.contains('active')) {
-    player_icon_repeat.classList.remove('active');
-  }
-
-  if(!audio.paused) {
-    toggleAudio();
-
-    qs('.player_pause').classList.add('player_play');
-    qs('.player_pause').classList.remove('player_pause');
-  }
-
-  audio.audio_item = undefined;
-  audio.src = '';
-
-  player_progress_loaded.style.width = '';
-  player_progress_played.style.width = '';
-
-  content.removeEventListener('scroll', renderNewItems);
-  arrayShuffle(danyadev.audio.list);
-  render();
-});
-
 var initPlayer = () => {
   let firstItemId = 0;
 
@@ -236,25 +195,6 @@ var initPlayer = () => {
   }
 
   checkLocked();
-}
-
-var renderNewItems = () => {
-  let h = window.screen.height > audiolist.clientHeight,
-      l = audiolist.clientHeight - window.outerHeight < content.scrollTop,
-      a = qs('.content_audio').parentNode.classList.contains('content_active');
-
-  if(a && (h || l)) {
-    content.removeEventListener('scroll', renderNewItems);
-    render();
-  }
-}
-
-var loadSoundBlock = () => {
-  content.addEventListener('scroll', renderNewItems);
-
-  let h = window.screen.height > audiolist.clientHeight;
-
-  if(h || audiolist.clientHeight - window.outerHeight < window.scrollY) renderNewItems();
 }
 
 var toggleAudio = (track, event) => {
@@ -414,6 +354,36 @@ player_back.addEventListener('click', () => {
   }
 });
 
+qs('.shuffle').addEventListener('click', () => {
+  if(danyadev.audio.renderedItems % 15 != 0
+    && danyadev.audio.renderedItems != danyadev.audio.count) return;
+
+  danyadev.audio.track_id = 0;
+  danyadev.audio.renderedItems = 0;
+  danyadev.audio.repeat = false;
+
+  if(player_icon_repeat.classList.contains('active')) {
+    player_icon_repeat.classList.remove('active');
+  }
+
+  if(!audio.paused) {
+    toggleAudio();
+
+    qs('.player_pause').classList.add('player_play');
+    qs('.player_pause').classList.remove('player_pause');
+  }
+
+  audio.audio_item = undefined;
+  audio.src = '';
+
+  player_progress_loaded.style.width = '';
+  player_progress_played.style.width = '';
+
+  content.removeEventListener('scroll', renderNewItems);
+  arrayShuffle(danyadev.audio.list);
+  render();
+});
+
 player_next.addEventListener('click', () => {
   let audioTrack = audiolist.children[danyadev.audio.track_id + 1];
 
@@ -441,6 +411,54 @@ qs('.player_btn').addEventListener('click', () => {
   let audioItem = audiolist.children[danyadev.audio.track_id];
 
   toggleAudio(audioItem);
+});
+
+player_icon_repeat.addEventListener('click', () => {
+  if(player_icon_repeat.classList.contains('active')) {
+    player_icon_repeat.classList.remove('active');
+
+    danyadev.audio.repeat = false;
+  } else {
+    player_icon_repeat.classList.add('active');
+
+    danyadev.audio.repeat = true;
+  }
+});
+
+qs('.player_icon_recoms').addEventListener('click', el => {
+  if(!danyadev.audio.count) return;
+  
+  if(danyadev.audio.recoms) {
+    danyadev.audio.recoms = false;
+
+    audiolist.innerHTML = '';
+    
+    danyadev.audio.count = 0;
+    danyadev.audio.list = [];
+    danyadev.audio.track_id = 0;
+    danyadev.audio.renderedItems = 0;
+    
+    load();
+  } else {
+    danyadev.audio.recoms = true;
+    
+    let id = danyadev.audio.list[danyadev.audio.track_id].id;
+    
+    audiolist.innerHTML = '';
+    
+    // ставим похожие
+    vkapi.method('audio.getRecommendations', {
+      target_audio: `${danyadev.user.id}_${id}`,
+      count: 1000
+    }, data => {
+      danyadev.audio.count = data.response.items.length;
+      danyadev.audio.list = data.response.items;
+      danyadev.audio.track_id = 0;
+      danyadev.audio.renderedItems = 0;
+  
+      render();
+    }, 'audiolist_info');
+  }
 });
 
 audio.addEventListener('ended', () => { // переключение на следующее аудио
@@ -473,18 +491,6 @@ audio.addEventListener('ended', () => { // переключение на сле�
   setTimeout(() => toggleAudio(audioItem), 100);
 });
 
-content.addEventListener('scroll', () => {
-  if(content.scrollTop >= 56) { // 100 - 44, где 44 - высота шапки
-    audioplayer.classList.add('audioplayer_fixed');
-    
-    qs('.pl50').style.display = 'block';
-  } else {
-    audioplayer.classList.remove('audioplayer_fixed');
-    
-    qs('.pl50').style.display = 'none';
-  }
-});
-
 audio.addEventListener('progress', () => { // сколько прогружено
   if(audio.buffered.length > 0) {
     player_progress_loaded.style.width = audio.buffered.end(0) / audio.duration * 100 + '%';
@@ -507,8 +513,7 @@ player_progress_wrap.addEventListener('mousedown', ev => {
   player_progress_wrap.classList.add('player_progress_active');
 
   let mousemove = e => {
-    let fixedOffset = audioplayer.classList.contains('audioplayer_fixed') ? audioplayer.offsetLeft : 0,
-        offsetx = e.pageX - player_progress_wrap.offsetLeft - fixedOffset,
+    let offsetx = e.pageX - player_progress_wrap.offsetLeft - audioplayer.offsetLeft,
         curTime = offsetx / player_progress_wrap.offsetWidth, selWidth = curTime * 100;
 
     if(selWidth > 100) selWidth = 100;
@@ -524,8 +529,7 @@ player_progress_wrap.addEventListener('mousedown', ev => {
     document.removeEventListener('mousemove', mousemove);
     document.removeEventListener('mouseup', mouseup);
     
-    let fixedOffset = audioplayer.classList.contains('audioplayer_fixed') ? audioplayer.offsetLeft : 0,
-        offsetx = e.pageX - player_progress_wrap.offsetLeft - fixedOffset;
+    let offsetx = e.pageX - player_progress_wrap.offsetLeft - audioplayer.offsetLeft;
 
     audio.currentTime = (offsetx * audio.duration) / player_progress_wrap.offsetWidth;
   }
@@ -540,8 +544,7 @@ player_progress_wrap.addEventListener('mousedown', ev => {
 player_volume_wrap.addEventListener('mousedown', ev => {
   player_volume_wrap.classList.add('player_volume_active');
   
-  let fixedOffset = audioplayer.classList.contains('audioplayer_fixed') ? audioplayer.offsetLeft : 0,
-      offsetx = ev.pageX - player_volume_wrap.offsetLeft - fixedOffset,
+  let offsetx = ev.pageX - player_volume_wrap.offsetLeft - audioplayer.offsetLeft,
       volume = offsetx / player_volume_wrap.offsetWidth;
 
   volume < 0 ? volume = 0 : '';
@@ -553,8 +556,7 @@ player_volume_wrap.addEventListener('mousedown', ev => {
   player_volume_this.style.width = selWidth + '%';
 
   let mousemove = e => {
-    fixedOffset = audioplayer.classList.contains('audioplayer_fixed') ? audioplayer.offsetLeft : 0;
-    offsetx = e.pageX - player_volume_wrap.offsetLeft - fixedOffset;
+    offsetx = e.pageX - player_volume_wrap.offsetLeft - audioplayer.offsetLeft;
     volume = offsetx / player_volume_wrap.offsetWidth;
 
     volume < 0 ? volume = 0 : '';

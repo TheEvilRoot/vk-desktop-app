@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright © 2018 danyadev
   Лицензия - Apache 2.0
 
@@ -11,19 +11,21 @@
 
 'use strict';
 
-const { shell, getCurrentWindow } = require('electron').remote;
+window.ELECTRON_DISABLE_SECURITY_WARNINGS = true;
+
+const { getCurrentWindow } = require('electron').remote;
 const fs = require('fs');
 const danyadev = {};
 const qs = e => document.querySelector(e);
 const qsa = e => document.querySelectorAll(e);
 const utils = require('./js/utils');
-const USERS_PATH = utils.USERS_PATH;
-const SETTINGS_PATH = utils.SETTINGS_PATH;
-const MENU_WIDTH = utils.MENU_WIDTH;
+const { USERS_PATH, SETTINGS_PATH, MENU_WIDTH } = utils;
 const theme = require('./js/theme'); theme();
 const update = require('./js/update'); update();
 const settings_json = require('./settings.json');
 const vkapi = require('./js/vkapi');
+
+// 5A626B
 
 var header = qs('.header'),
     content = qs('.content'),
@@ -34,14 +36,12 @@ var header = qs('.header'),
     account_icon = qs('.acc_icon'),
     settings_item = qs('.settings_item');
 
-var init = (users, user) => require('./js/init')(users, user);
-
 window.addEventListener('beforeunload', () => {
   let settings_json_new = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf-8'));
-  
+
   settings_json_new.window = getCurrentWindow().getBounds();
   settings_json_new.audio.volume = qs('.audio').volume;
-  
+
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json_new, null, 2));
 });
 
@@ -52,7 +52,7 @@ content.children[settings_json.settings.def_tab].classList.add('content_active')
   item.addEventListener('click', function() {
     let tab = [].slice.call(menu.children).indexOf(this);
     if(tab == 0) return; // если это блок юзера
-    
+
     menu.style.left = MENU_WIDTH;
     if(qs('.menu_item_active') == this) return;
 
@@ -82,19 +82,12 @@ header.addEventListener('click', e => { // скрытие панели при к
 
 account_icon.addEventListener('click', () => {
   menu.style.left = MENU_WIDTH;
-  
+
   qs('.menu_item_active').classList.remove('menu_item_active');
   qs('.content_active').classList.remove('content_active');
 
   menu.children[0].classList.add('menu_item_active');
   content.children[0].classList.add('content_active');
-});
-    
-qsa('a').forEach(link => {
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    shell.openExternal(e.target.href);
-  });
 });
 
 settings_item.addEventListener('contextmenu', () => {
@@ -108,7 +101,7 @@ settings_item.addEventListener('contextmenu', () => {
       click: () => {
         if(getCurrentWindow().isDevToolsOpened()) getCurrentWindow().closeDevTools();
         else getCurrentWindow().openDevTools();
-        
+
         menu.style.left = MENU_WIDTH;
       }
     }
@@ -121,7 +114,7 @@ var users = fs.readFileSync(USERS_PATH, 'utf-8');
 
 if(users.trim() == '') {
   users = {};
-  
+
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
 } else users = JSON.parse(users);
 
@@ -129,12 +122,12 @@ var users_keys = Object.keys(users);
 
 if(users_keys.length > 0) {
   wrapper_content.style.display = 'block';
-  
+
   for(let i=0; i<users_keys.length; i++) {
     let key = users_keys[i];
-    
+
     if(users[key].active) {
-      init(users, users[key]);
+      require('./js/init')(users, users[key]);
       break;
     }
   }

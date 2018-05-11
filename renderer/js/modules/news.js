@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright © 2018 danyadev
   Лицензия - Apache 2.0
 
@@ -12,7 +12,7 @@
 'use strict';
 
 const emoji = require('./emoji');
-const request = utils.request;
+const { request } = utils;
 
 var news_content = qs('.news_content'),
     content = qs('.content'),
@@ -24,13 +24,13 @@ var load = () => {
     path: '/danyadev/data/master/develop'
   }, res => {
     let ver_list = Buffer.alloc(0);
-  
+
     res.on('data', ch => ver_list = Buffer.concat([ver_list, ch]));
     res.on('end', () => {
       danyadev.verified = JSON.parse(ver_list);
       getNews();
     });
-  });
+  }, 'news_inet_err');
 }
 
 // ads filters: friends_recomm,ads_app,ads_site,ads_post,ads_app_slider
@@ -51,19 +51,22 @@ var getNews = () => {
       return;
     }
 
+      qs('.news_inet_err').innerHTML = 'Загрузка...';
+
     start_from = data.response.next_from;
 
     for (let i = 0; i < data.response.items.length; i++) {
       let item = data.response.items[i],
           verified = '', sign = '', head_data,
           head_name, text = '', head_update = '',
+          post_comments = { innerHTML: '' },
           time = new Date(item.date * 1000),
           this_time = new Date,
-          parsed_time = '',
+          parsed_time = '', like_style = '',
           zero = time.getMinutes() < 10 ? '0' : '',
           mins = zero + time.getMinutes(),
           months = [
-            'января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
+            'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
             'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
           ];
 
@@ -83,33 +86,33 @@ var getNews = () => {
         item.source_id = item.source_id.toString().replace(/-/, '');
         head_data = data.response.groups.find(el => el.id == item.source_id);
         head_name = head_data.name;
-        
+
         if(head_data.verified || danyadev.verified[1].includes(head_data.id)) {
           verified = '<img class="friend_verify" src="images/verify.png">';
         }
       } else {
         head_data = data.response.profiles.find(el => el.id == item.source_id);
         head_name = `${head_data.first_name} ${head_data.last_name}`;
-        
+
         if(head_data.verified || danyadev.verified[0].includes(head_data.id)) {
           verified = '<img class="friend_verify" src="images/verify.png">';
         }
       }
-      
+
       if(item.type == 'post') {
         text = item.text;
-        
+
         if(item.copy_history) {
           if(text) text += '\n';
           text += '*репост*';
         }
-        
+
         if(item.post_source.data == 'profile_photo') {
           head_update = ` <span class='post_time'>
                         обновил${head_data.sex == 1 ? 'a' : ''}
                         фотографию на странице:</span>`;
         }
-        
+
         if(item.final_post && !text) {
           head_update = ` <span class='post_time'>
                         молча удалил${head_data.sex == 1 ? 'a' : ''}
@@ -122,29 +125,33 @@ var getNews = () => {
 
         if (item.attachments) {
           if(text) text += '\n';
-          
+
           for (let j = 0; j < item.attachments.length; j++) {
             let attach = item.attachments[j];
 
             if (attach.type == 'photo') {
               text += `<img src="${attach.photo.photo_604}" class="post_img">`;
             } else if(attach.type == 'audio') {
-              text += '*аудиозапись*';
+              text += '*Аудиозапись*';
             } else if(attach.type == 'article') {
-              text += '*стилизированная ссылка*';
+              text += '*Статья*';
             } else if(attach.type == 'poll') {
-              text += '*голосование*';
+              text += '*Голосование*';
             } else if(attach.type == 'video') {
               text += '*Видеозапись*';
             } else if(attach.type == 'doc') {
               text += '*Документ*';
+            } else if(attach.type == 'link') {
+              text += '*Ссылка*';
             } else {
               text += `Неизвестный тип прикрепления.\n
-                       Скиньте текст ниже разработчику (https://vk.com/danyadev):\n
+                       Скиньте текст ниже
+                       <div data-url='https://vk.com/danyadev' class='link'
+                            onclick='utils.openLink(this)'>разработчику</div>:\n
                        ${JSON.stringify(attach)}
                       `;
             }
-            
+
             if(j != item.attachments.length-1) text += '\n';
           }
         }
@@ -152,14 +159,14 @@ var getNews = () => {
         head_update = ` <span class='post_time'>
                       добавил${head_data.sex == 1 ? 'a' : ''}
                       новую фотографию</span>`;
-                      
+
         for(let j=0; j<item.photos.count; j++) {
           let photo = item.photos.items[j];
-          
+
           text += `<img src="${photo.photo_604}" class="post_img">`;
         }
       }
-      
+
       if (emoji.isEmoji(text)) text = emoji.replace(text);
 
       if (item.signer_id) {
@@ -169,6 +176,18 @@ var getNews = () => {
       }
 
       text = text.replace(/\n/g, '<br>');
+
+      if(!item.likes.user_likes) like_style = 'style="opacity: 0.35"';
+
+      if(item.comments.can_post) {
+        post_comments.innerHTML = `
+        <div class="post_comments">
+          <img src="images/comment.svg" class="post_comment_img">
+          <div class="post_comment_text">Комментировать</div>
+          <div class="post_comment_count">${item.comments.count || ''}</div>
+        </div>
+        `;
+      }
 
       news_content.innerHTML += `
         <div class='news_block theme_block'>
@@ -180,6 +199,14 @@ var getNews = () => {
             </div>
           </div>
           <div class="post_content">${text} ${sign}</div>
+          <div class="post_bottom">
+            <div class="post_like">
+              <img src="images/like.svg" class="post_like_img" ${like_style}>
+              <div class="post_like_text">Нравится</div>
+              <div class="post_like_count">${item.likes.count || ''}</div>
+            </div>
+            ${post_comments.innerHTML}
+          </div>
         </div>
       `.trim();
     }
@@ -209,13 +236,13 @@ var renderNewItems = () => {
 
 // if(item.type == 'friend') {
 //   let creator = data.response.profiles.find(el => el.id == item.source_id);
-// 
+//
 //   text += `${creator.first_name} ${creator.last_name} добавил${creator.sex == 1 ? 'a' : ''} в друзья `;
-// 
+//
 //   item.friends.items.forEach((item_, i) => {
 //     let user = data.response.profiles.find(el => el.id == item_.user_id);
 //     text += `${user.first_name_acc} ${user.last_name_acc}`;
-// 
+//
 //     if(i == item.friends.items.length-1) text += '.';
 //     else text += ', ';
 //   })

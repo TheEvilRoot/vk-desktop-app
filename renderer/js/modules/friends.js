@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright © 2018 danyadev
   Лицензия - Apache 2.0
 
@@ -11,11 +11,11 @@
 
 'use strict';
 
-const request = utils.request;
+const { request } = utils;
 
 var load = () => {
   console.log('friends loaded');
-  
+
   request({
     host: 'raw.githubusercontent.com',
     path: '/danyadev/data/master/develop'
@@ -26,9 +26,9 @@ var load = () => {
     res.on('end', () => {
       dev_list = JSON.parse(dev_list)[0];
       let block = { innerHTML: '' }
-      
+
       console.log(dev_list);
-        
+
       vkapi.method('execute.getFriendsAndLists', {
         func_v: 2,
         need_lists: true,
@@ -37,11 +37,11 @@ var load = () => {
       }, data => {
         data.response.items.forEach(item => {
           let verify = '';
-          
+
           if(item.verified || dev_list.includes(item.id)) {
             verify = '<img class="friend_verify" src="images/verify.png">';
           }
-          
+
           block.innerHTML += `
           <div class="friend_item theme_block">
             <img src="${item.photo_100}" class="friend_img">
@@ -52,15 +52,15 @@ var load = () => {
           </div>
           `.trim();
         });
-        
+
         qs('.friends_list').innerHTML += block.innerHTML;
-      });
+      }, 'friend_inet_err');
     });
-  });
+  }, 'friend_inet_err');
 }
 
 var render = () => {
-  
+
 }
 
 module.exports = {

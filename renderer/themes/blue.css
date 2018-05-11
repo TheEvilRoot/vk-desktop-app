@@ -47,6 +47,10 @@
   border-bottom: 1px solid #19222e;
 }
 
+.blue_theme .post_bottom {
+  border-top: 1px solid #19222e;
+}
+
 /* стили для выделенных в меню элементов */
 .blue_theme .menu_item:hover,
 .blue_theme .menu_item_active:not(.menu_account_item),

@@ -22,7 +22,8 @@
       </div>
       <div class="error_info" style='color: red;'></div>
       <div class="bottom_info">
-        При возникновении проблем пишите <a href='https://vk.com/danyadev'>сюда</a>.<br><br>
+        При возникновении проблем пишите
+        <div data-url='https://vk.com/danyadev' class='link' onclick='utils.openLink(this)'>разработчику</div>.<br><br>
         Платформа по умолчанию - Android.<br>
         Ее можно изменить в настройках.
       </div>
@@ -92,7 +93,6 @@
         <div class="tab_content">
           <div class="content_audio">
             <div class="center_audio">
-              <div class="pl50"></div>
               <div class="audioplayer theme_block">
                 <audio class='audio'></audio>
                 <div class="player_cover"></div>
@@ -122,6 +122,7 @@
                 <div class="player_utils">
                   <div class="player_util_icons">
                     <div class="player_icon player_icon_repeat" title='Повтор'></div>
+                    <div class="player_icon player_icon_recoms" title='Показать похожие'></div>
                   </div>
                   <div class="player_volume_wrap">
                     <div class="player_volume">
@@ -147,11 +148,17 @@
         <div class="tab_content">Уведомления</div>
         <div class="tab_content">
           <div class="friends_list"></div>
+          
+          <div class="friends_list_err">
+            <div class="friend_item theme_block friend_item_err">
+              <div class="friend_inet_err">Загрузка...</div>
+            </div>
+          </div>
         </div>
         <div class="tab_content">
           <div class="group_wrap"></div>
           <div class="group_wrap_err">
-            <div class="group_item_err">Загрузка...</div>
+            <div class="group_item_err theme_block">Загрузка...</div>
           </div>
         </div>
         <div class="tab_content">Фотографии</div>
@@ -176,16 +183,10 @@
                     </div>
                   </div>
                   <div class="settings_line">
-                    <div class="settings_left_block">Электронная почта</div>
-                    <input type="text" class="settings_input settings_email theme_bgc">
-                  </div>
-                  <div class="settings_line">
-                    <div class="settings_left_block">Пароль</div>
-                    <input type="text" class="settings_input theme_bgc">
-                  </div>
-                  <div class="settings_line">
-                    <div class="settings_left_block">Номер телефона</div>
-                    <input type="text" class="settings_input settings_phone theme_bgc">
+                    <div class="settings_left_block">Старый пароль</div>
+                    <input type="text" class="settings_input old_password theme_bgc">
+                    <div class="settings_left_block">Новый пароль</div>
+                    <input type="text" class="settings_input new_password theme_bgc">
                   </div>
                   <div class="settings_line">
                     <input type="button" disabled class="settings_btn" value="Сохранить">

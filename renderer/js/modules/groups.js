@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright © 2018 danyadev
   Лицензия - Apache 2.0
 
@@ -11,7 +11,7 @@
 
 'use strict';
 
-const request = utils.request;
+const { request } = utils;
 
 var group_wrap = qs('.group_wrap'),
     content = qs('.content');
@@ -29,13 +29,13 @@ var load = () => {
 
 var pad = (n, tx) => {
   n = Math.abs(n) % 100;
-  
+
   let n1 = n % 10;
-  
+
   if(n > 10 && n < 20) return tx[2];
   if(n1 > 1 && n1 < 5) return tx[1];
   if(n1 == 1) return tx[0];
-  
+
   return tx[2];
 }
 
@@ -47,7 +47,7 @@ var getAllGroups = offset => {
   }, data => {
     danyadev.groups.count = data.response.count;
     danyadev.groups.list = danyadev.groups.list.concat(data.response.items);
-    
+
     if(danyadev.groups.list.length < data.response.count) {
       getAllGroups(offset + 1000);
     } else {
@@ -77,12 +77,12 @@ request({
 var render = () => {
   let block = { innerHTML: '' },
       endID = danyadev.groups.loaded + 15;
-  
+
   let renderItem = () => {
     let group = danyadev.groups.list[danyadev.groups.loaded],
         members = 'подписчик' + pad(group.members_count, ['', 'а', 'ов']),
         name, verify = '';
-    
+
     if(group.deactivated) {
       name = '<div class="group_type">Сообщество заблокировано</div>';
     } else if(!group.members_count) {
@@ -96,11 +96,11 @@ var render = () => {
           <div class="group_subs">${group.members_count.toLocaleString('ru-RU')} ${members}</div>
       `.trim();
     }
-    
+
     if(group.verified || danyadev.groups.verified.includes(group.id)) {
       verify = '<img class="friend_verify" src="images/verify.png">';
     }
-    
+
     block.innerHTML += `
       <div class="group_item theme_block">
         <img src="${group.photo_100}" class="group_img">
@@ -110,18 +110,18 @@ var render = () => {
         </div>
       </div>
     `;
-    
+
     danyadev.groups.loaded++;
-    
+
     if(danyadev.groups.list[danyadev.groups.loaded] && danyadev.groups.loaded < endID) {
       setTimeout(renderItem, 0);
     } else {
       group_wrap.innerHTML += block.innerHTML;
-      
+
       if(danyadev.groups.loaded < danyadev.groups.count) loadGroupsBlock();
     }
   }
-  
+
   renderItem();
 }
 
@@ -129,7 +129,7 @@ var renderNewItems = () => {
   let h = window.screen.height > group_wrap.clientHeight,
       l = group_wrap.clientHeight - window.outerHeight - 100 < content.scrollTop,
       a = qs('.group_wrap').parentNode.classList.contains('content_active');
-  
+
   if(a && (h || l)) {
     content.removeEventListener('scroll', renderNewItems);
     render();
@@ -138,10 +138,10 @@ var renderNewItems = () => {
 
 var loadGroupsBlock = () => {
   content.addEventListener('scroll', renderNewItems);
-  
+
   let h = window.screen.height > group_wrap.clientHeight,
       l = group_wrap.clientHeight - window.outerHeight - 100 < content.scrollTop;
-  
+
   if(h || l) renderNewItems();
 }
 

@@ -47,6 +47,10 @@
   border-bottom: 1px solid #222629;
 }
 
+.twilight_theme .post_bottom {
+  border-top: 1px solid #222629;
+}
+
 /* стили для выделенных в меню элементов */
 .twilight_theme .menu_item:hover,
 .twilight_theme .menu_item_active:not(.menu_account_item),

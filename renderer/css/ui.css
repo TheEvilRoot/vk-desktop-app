@@ -267,3 +267,15 @@
   display: inline-block;
   margin: 0 auto;
 }
+
+.link {
+  display: inline-block;
+  color: #0000db;
+  cursor: pointer;
+  user-select: none;
+  transition: color .3s;
+}
+
+.link:hover {
+  color: #4040ff;
+}

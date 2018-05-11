@@ -19,6 +19,7 @@
   border-radius: 50%;
   float: left;
   margin-right: 12px;
+  -webkit-user-drag: none;
 }
 
 .friend_names {
@@ -40,4 +41,11 @@
 .friend_verify {
   margin-bottom: 2px;
   vertical-align: middle;
+}
+
+.friend_inet_err {
+  margin: 0 auto;
+  padding: 20px 0;
+  width: 220px;
+  text-align: center;
 }

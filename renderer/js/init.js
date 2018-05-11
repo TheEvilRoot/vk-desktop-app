@@ -48,10 +48,10 @@ var init = (users, user) => {
   }, data => {
     let res = data.response[0];
     
-    if(user.first_name != res.first_name
-        || user.last_name != res.last_name
-        || user.photo_100 != res.photo_100
-        || user.status != res.status) {
+    if(user.first_name != res.first_name ||
+        user.last_name != res.last_name ||
+        user.photo_100 != res.photo_100 ||
+        user.status != res.status) {
       user.first_name = res.first_name;
       user.last_name = res.last_name;
       user.photo_100 = res.photo_100;
