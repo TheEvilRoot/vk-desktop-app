@@ -20,7 +20,7 @@ danyadev.errorData = {};
 
 var audiolist_info = qs('.audiolist_info');
 
-var keys = [
+var client_keys = [
   [2274003, 'hHbZxrka2uZ6jB1inYsH', 'Android'           ], // 0
   [3140623, 'VeWdmVclDCtn6ihuP1nt', 'iPhone'            ], // 1
   [3682744, 'mY6CDUswIVdJLCD3j15n', 'iPad'              ], // 2
@@ -124,7 +124,7 @@ var verifiedList = (callback, target) => {
 };
 
 module.exports = {
-  app_path, request, keys, verifiedList,
+  app_path, request, client_keys, verifiedList,
   err_click, update, downloadsPath,
   openLink: el => shell.openExternal(el.dataset.url),
   openVK: el => shell.openExternal(`https://vk.com/${el.dataset.id}`),

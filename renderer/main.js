@@ -129,4 +129,4 @@ if(users_keys.length > 0) {
       break;
     }
   }
-} else require('./js/auth.js');
+} else require('./js/auth');

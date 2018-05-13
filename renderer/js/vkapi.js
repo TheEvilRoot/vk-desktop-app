@@ -45,7 +45,7 @@ const https = require('https');
 const fs = require('fs');
 const querystring = require('querystring');
 const { getCurrentWindow } = require('electron').remote;
-const { request, keys } = utils;
+const { request, client_keys } = utils;
 const API_VERSION = 5.74;
 const captcha = require('./captcha');
 
@@ -69,6 +69,7 @@ var method = (method_name, params, callback, target) => {
   });
 
   console.log(method_name, params);
+  process.log('\nAPI REQ: ' + method_name)
 
   params.access_token = params.access_token || users[id].access_token;
 

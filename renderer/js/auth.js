@@ -124,7 +124,7 @@ var auth = params => {
           wrapper_login.style.display = '';
           wrapper_content.style.display = 'block';
           
-          init(users, users[data.user_id]);
+          require('./init')(users, users[data.user_id]);
         });
       }, 'error_info');
     });
