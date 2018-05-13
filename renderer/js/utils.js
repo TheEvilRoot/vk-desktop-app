@@ -13,6 +13,8 @@
 
 const { Menu, getCurrentWindow, shell } = require('electron').remote;
 const https = require('https');
+const { platform } = require('os');
+const { execSync } = require('child_process');
 
 danyadev.errorData = {};
 
@@ -40,7 +42,7 @@ var request = (params, callback, target) => {
       let btn = '';
 
       danyadev.errorData[target] = {
-        defHTML: qs('.' + target).innerHTML,
+        defHTML: qs(`.${target}`).innerHTML,
         params: params,
         callback: callback
       }
@@ -57,7 +59,7 @@ var request = (params, callback, target) => {
 }
 
 var err_click = (target) => {
-  qs('.' + target).innerHTML = danyadev.errorData[target].defHTML;
+  qs(`.${target}`).innerHTML = danyadev.errorData[target].defHTML;
 
   request(danyadev.errorData[target].params,
           danyadev.errorData[target].callback,
@@ -65,7 +67,7 @@ var err_click = (target) => {
 }
 
 var app_path = (() => {
-  let prod_path = process.resourcesPath.replace(/\\/g, '/') + '/app';
+  let prod_path = `${process.resourcesPath.replace(/\\/g, '/')}/app`;
 
   if(fs.existsSync(prod_path)) return prod_path;
 
@@ -74,19 +76,60 @@ var app_path = (() => {
 
 var update = (() => {
   try {
-    return require(app_path + '/dev.json').update;
+    return require(`${app_path}/dev.json`).update;
   } catch(e) {
     return true;
   }
 })();
 
-var openLink = el => shell.openExternal(el.dataset.url);
+var unix = () => {
+  let homeDownloads = `${process.env.HOME}/Downloads`;
+  
+  try {
+    return execSync('xdg-user-dir DOWNLOAD', { stdio: [0, 3, 3] });
+  } catch (e) { }
+  
+  try {
+    if(fs.statSync(homeDownloads)) return homeDownloads;
+  } catch (e) { }
+
+  return '/tmp/';
+}
+
+var downloadsPath = {
+  darwin: () => `${process.env.HOME}/Downloads`,
+  freebsd: unix,
+  linux: unix,
+  sunos: unix,
+  win32: () => `${process.env.USERPROFILE}/Downloads`.replace(/\\/g, '/')
+}[platform()]();
+
+var verifiedList = (callback, target) => {
+  if(danyadev.verified) {
+    callback(danyadev.verified);
+    return;
+  }
+  
+  request({
+    host: 'raw.githubusercontent.com',
+    path: '/danyadev/data/master/develop'
+  }, res => {
+    let ver_list = Buffer.alloc(0);
+  
+    res.on('data', ch => ver_list = Buffer.concat([ver_list, ch]));
+    res.on('end', () => {
+      (danyadev.verified = JSON.parse(ver_list)) && callback(danyadev.verified);
+    });
+  }, target);
+};
 
 module.exports = {
-  app_path, request, keys,
-  err_click, update, openLink,
+  app_path, request, keys, verifiedList,
+  err_click, update, downloadsPath,
+  openLink: el => shell.openExternal(el.dataset.url),
+  openVK: el => shell.openExternal(`https://vk.com/${el.dataset.id}`),
   showContextMenu: t => Menu.buildFromTemplate(t).popup(getCurrentWindow()),
-  USERS_PATH: app_path + '/renderer/users.json',
-  SETTINGS_PATH: app_path + '/renderer/settings.json',
+  USERS_PATH: `${app_path}/renderer/users.json`,
+  SETTINGS_PATH: `${app_path}/renderer/settings.json`,
   MENU_WIDTH: '-260px'
 }

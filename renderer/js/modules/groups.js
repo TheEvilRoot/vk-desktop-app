@@ -11,7 +11,7 @@
 
 'use strict';
 
-const { request } = utils;
+const { request, verifiedList } = utils;
 
 var group_wrap = qs('.group_wrap'),
     content = qs('.content');
@@ -24,7 +24,11 @@ danyadev.groups.list = [];
 danyadev.groups.verified = [];
 
 var load = () => {
-  // для чего-то
+  verifiedList(list => {
+    danyadev.groups.verified = list[1];
+    
+    getAllGroups(0);
+  }, 'group_item_err');
 }
 
 var pad = (n, tx) => {
@@ -61,19 +65,6 @@ var getAllGroups = offset => {
   }, 'group_item_err');
 }
 
-request({
-  host: 'raw.githubusercontent.com',
-  path: '/danyadev/data/master/develop'
-}, res => {
-  let group_ver_list = Buffer.alloc(0);
-
-  res.on('data', ch => group_ver_list = Buffer.concat([group_ver_list, ch]));
-  res.on('end', () => {
-    danyadev.groups.verified = JSON.parse(group_ver_list)[1];
-    getAllGroups(0);
-  });
-});
-
 var render = () => {
   let block = { innerHTML: '' },
       endID = danyadev.groups.loaded + 15;
@@ -98,7 +89,7 @@ var render = () => {
     }
 
     if(group.verified || danyadev.groups.verified.includes(group.id)) {
-      verify = '<img class="friend_verify" src="images/verify.png">';
+      verify = '<img class="img_verified" src="images/verify.png">';
     }
 
     block.innerHTML += `

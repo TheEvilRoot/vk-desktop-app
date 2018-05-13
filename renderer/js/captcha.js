@@ -14,7 +14,7 @@
 module.exports = (src, sid, callback) => {
   let modal = document.createElement('div');
   
-  modal.classList.add(`captcha_modal`);
+  modal.classList.add('captcha_modal');
   modal.classList.add(`cm_${sid}`);
   document.body.appendChild(modal);
   
@@ -33,7 +33,7 @@ module.exports = (src, sid, callback) => {
       input = qs(`.ck_${sid} input`),
       img = qs(`.ci_${sid} img`);
   
-  img.addEventListener('click', () => img.src += ~img.src.indexOf("rnd=") ? "1" : "&rnd=1");
+  img.addEventListener('click', () => img.src += ~img.src.indexOf('rnd=') ? '1' : '&rnd=1');
   btn.addEventListener('click', () => {
     qs(`.cm_${sid}`).remove();
     callback(input.value, sid);

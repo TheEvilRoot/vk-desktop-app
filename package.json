@@ -1,8 +1,8 @@
 {
   "main": "index.js",
   "name": "vk-desktop-app",
-  "version": "0.5.1",
-  "build": 2,
+  "version": "0.5.2",
+  "build": 1,
   "description": "Клиент ВКонтакте для Windows и Linux",
   "author": "danyadev",
   "license": "Apache 2.0",

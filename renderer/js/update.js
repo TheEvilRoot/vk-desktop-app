@@ -48,9 +48,9 @@ var getGithubFiles = (user, repo, removeList, callback) => {
 
         for(let i = 0; i<data.length; i++) {
           if(data[i].type == 'dir') {
-            sendReq(path + '/' + data[i].name);
+            sendReq(`${path}/${data[i].name}`);
           } else {
-            fileList.push(app_path + path + '/' + data[i].name);
+            fileList.push(`${app_path}${path}/${data[i].name}`);
           }
 
           if(i == data.length-1) {
@@ -84,7 +84,7 @@ var getLocalFiles = callback => {
     let files = fs.readdirSync(dir);
 
     for(let i in files) {
-      let name = dir + '/' + files[i];
+      let name = `${dir}/${files[i]}`;
 
       if(files[i] == 'dev.json') continue;
 
@@ -105,7 +105,7 @@ var update = () => {
 
     res.on('data', ch => body = Buffer.concat([body, ch]));
     res.on('end', () => {
-      let loc_package = require(app_path + '/package.json'),
+      let loc_package = require(`${app_path}/package.json`),
           ext_package = JSON.parse(body),
           v0 = ext_package.version.split('.'),
           v1 = loc_package.version.split('.'),
@@ -114,8 +114,8 @@ var update = () => {
 
       if(utils.update && newVer || newBuild) {
         let noUpdate = [
-          app_path + '/renderer/settings.json',
-          app_path + '/renderer/users.json'
+          `${app_path}/renderer/settings.json`,
+          `${app_path}/renderer/users.json`
         ];
 
         getGithubFiles('danyadev', 'vk-desktop-app', noUpdate, (files, allFiles) => {

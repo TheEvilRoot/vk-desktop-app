@@ -44,7 +44,7 @@ var getNews = () => {
     filters: 'post,photo',
     fields: 'id,verified,first_name,first_name_dat,first_name_acc,last_name,last_name_acc,last_name_gen,sex,screen_name,photo_50,photo_100,online,video_files'
   }, data => {
-    if (!data.response.next_from) {
+    if(!data.response.next_from) {
       qs('.news_content_err').style.display = '';
       qs('.news_inet_err').innerHTML = `Показаны последние новости`;
 
@@ -55,14 +55,14 @@ var getNews = () => {
 
     start_from = data.response.next_from;
 
-    for (let i = 0; i < data.response.items.length; i++) {
+    for(let i = 0; i < data.response.items.length; i++) {
       let item = data.response.items[i],
           verified = '', sign = '', head_data,
           head_name, text = '', head_update = '',
           post_comments = { innerHTML: '' },
           time = new Date(item.date * 1000),
           this_time = new Date,
-          parsed_time = '', like_style = '',
+          parsed_time = '',
           zero = time.getMinutes() < 10 ? '0' : '',
           mins = zero + time.getMinutes(),
           months = [
@@ -70,11 +70,11 @@ var getNews = () => {
             'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
           ];
 
-      if (item.caption && item.caption.type == "explorebait") continue;
+      if(item.caption && item.caption.type == "explorebait") continue;
 
-      if (this_time.toLocaleDateString() == time.toLocaleDateString()) {
+      if(this_time.toLocaleDateString() == time.toLocaleDateString()) {
         parsed_time += 'Сегодня в ';
-      } else if (this_time.getFullYear() == time.getFullYear()) {
+      } else if(this_time.getFullYear() == time.getFullYear()) {
         parsed_time += `${time.getDate()} ${months[time.getMonth()]} в `;
       } else {
         parsed_time += `${time.getDate()} ${months[time.getMonth()]} ${time.getFullYear()} в `;
@@ -82,20 +82,20 @@ var getNews = () => {
 
       parsed_time += `${time.getHours()}:${mins}`;
 
-      if (item.source_id.toString()[0] == '-') {
+      if(item.source_id.toString()[0] == '-') {
         item.source_id = item.source_id.toString().replace(/-/, '');
         head_data = data.response.groups.find(el => el.id == item.source_id);
         head_name = head_data.name;
 
         if(head_data.verified || danyadev.verified[1].includes(head_data.id)) {
-          verified = '<img class="friend_verify" src="images/verify.png">';
+          verified = '<img class="img_verified" src="images/verify.png">';
         }
       } else {
         head_data = data.response.profiles.find(el => el.id == item.source_id);
         head_name = `${head_data.first_name} ${head_data.last_name}`;
 
         if(head_data.verified || danyadev.verified[0].includes(head_data.id)) {
-          verified = '<img class="friend_verify" src="images/verify.png">';
+          verified = '<img class="img_verified" src="images/verify.png">';
         }
       }
 
@@ -123,13 +123,13 @@ var getNews = () => {
                         свою страницу со словами:</span>`;
         }
 
-        if (item.attachments) {
+        if(item.attachments) {
           if(text) text += '\n';
 
-          for (let j = 0; j < item.attachments.length; j++) {
+          for(let j = 0; j < item.attachments.length; j++) {
             let attach = item.attachments[j];
 
-            if (attach.type == 'photo') {
+            if(attach.type == 'photo') {
               text += `<img src="${attach.photo.photo_604}" class="post_img">`;
             } else if(attach.type == 'audio') {
               text += '*Аудиозапись*';
@@ -167,26 +167,55 @@ var getNews = () => {
         }
       }
 
-      if (emoji.isEmoji(text)) text = emoji.replace(text);
+      if(emoji.isEmoji(text)) text = emoji.replace(text);
 
-      if (item.signer_id) {
+      if(item.signer_id) {
         let signer = data.response.profiles.find(el => el.id == item.signer_id);
 
         sign = `<br><div class='post_signer'>${signer.first_name} ${signer.last_name}</div>`;
       }
 
-      text = text.replace(/\n/g, '<br>');
+      text = text.replace(/\n/g, '<br>')
+                 .replace(/\[(\w+)\|([^[]+)\]/g,
+                          '<div data-id="$1" class="link" onclick="utils.openVK(this)">$2</div>');
+          
+      let likes = item.likes.count || '',
+          comments = item.comments.count || '',
+          reposts = item.reposts.count || '',
+          views = item.views && item.views.count || 0;
+          
+          
+      if(likes >= 1000) {
+        if(likes >= 1000000) likes = (likes / 1000000).toFixed(1) + 'M';
+        else likes = (likes / 1000).toFixed(1) + 'K';
+      }
+      
+      if(comments >= 1000) {
+        if(comments >= 1000000) comments = (comments / 1000000).toFixed(1) + 'M';
+        else comments = (comments / 1000).toFixed(1) + 'K';
+      }
+      
+      if(reposts >= 1000) {
+        if(reposts >= 1000000) reposts = (reposts / 1000000).toFixed(1) + 'M';
+        else reposts = (reposts / 1000).toFixed(1) + 'K';
+      }
+      
+      if(views >= 1000) {
+        if(views >= 1000000) views = (views / 1000000).toFixed(1) + 'M';
+        else views = (views / 1000).toFixed(1) + 'K';
+      }
+      
+      let like_act_img   = '', like_act_cnt   = '',
+          repost_act_img = '', repost_act_cnt = '';
 
-      if(!item.likes.user_likes) like_style = 'style="opacity: 0.35"';
-
-      if(item.comments.can_post) {
-        post_comments.innerHTML = `
-        <div class="post_comments">
-          <img src="images/comment.svg" class="post_comment_img">
-          <div class="post_comment_text">Комментировать</div>
-          <div class="post_comment_count">${item.comments.count || ''}</div>
-        </div>
-        `;
+      if(item.likes.user_likes) {
+        like_act_img = 'post_btn_act_i';
+        like_act_cnt = 'post_btn_act_c';
+      }
+      
+      if(item.reposts.user_reposted) {
+        repost_act_img = 'post_btn_act_i';
+        repost_act_cnt = 'post_btn_act_c';
       }
 
       news_content.innerHTML += `
@@ -201,11 +230,21 @@ var getNews = () => {
           <div class="post_content">${text} ${sign}</div>
           <div class="post_bottom">
             <div class="post_like">
-              <img src="images/like.svg" class="post_like_img" ${like_style}>
-              <div class="post_like_text">Нравится</div>
-              <div class="post_like_count">${item.likes.count || ''}</div>
+              <img class="post_like_img ${like_act_img}">
+              <div class="post_like_count ${like_act_cnt}">${likes}</div>
             </div>
-            ${post_comments.innerHTML}
+            <div class="post_comment">
+              <img class="post_comment_img">
+              <div class="post_comment_count">${comments}</div>
+            </div>
+            <div class="post_repost">
+              <img class="post_repost_img ${repost_act_img}">
+              <div class="post_repost_count ${repost_act_cnt}">${reposts}</div>
+            </div>
+            <div class="post_views">
+              <img class="post_views_img">
+              <div class="post_views_count">${views}</div>
+            </div>
           </div>
         </div>
       `.trim();
@@ -220,7 +259,7 @@ var loadNewNews = start_from => {
 
   let h = window.screen.height > news_content.clientHeight;
 
-  if (h || news_content.clientHeight - window.outerHeight < window.scrollY) renderNewItems();
+  if(h || news_content.clientHeight - window.outerHeight < window.scrollY) renderNewItems();
 }
 
 var renderNewItems = () => {
@@ -228,7 +267,7 @@ var renderNewItems = () => {
       l = news_content.clientHeight - window.outerHeight < content.scrollTop,
       a = qs('.news_content').parentNode.classList.contains('content_active');
 
-  if (a && (h || l)) {
+  if(a && (h || l)) {
     content.removeEventListener('scroll', renderNewItems);
     getNews();
   }

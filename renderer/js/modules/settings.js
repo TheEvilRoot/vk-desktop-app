@@ -122,7 +122,7 @@ qs('.logout').addEventListener('click', () => {
 
 initSelect('.change_theme', (sel, list, selected) => {
   let optionBlock = '',
-      themeList = fs.readdirSync(utils.app_path + '/renderer/themes')
+      themeList = fs.readdirSync(`${utils.app_path}/renderer/themes`)
                     .map(item => item.replace(/\.css/, ''));
 
   themeList.unshift('white');

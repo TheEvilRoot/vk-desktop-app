@@ -45,7 +45,7 @@ const https = require('https');
 const fs = require('fs');
 const querystring = require('querystring');
 const { getCurrentWindow } = require('electron').remote;
-const { request, client_keys } = utils;
+const { request, keys } = utils;
 const API_VERSION = 5.74;
 const captcha = require('./captcha');
 

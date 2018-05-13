@@ -30,13 +30,17 @@ var init = (users, user) => {
         'groups', 'photos',
         'videos', 'settings'
       ], def_item = settings_json.settings.def_tab;
-      
+  
   require(`./modules/${items[def_item]}`).load(user);
   
   for(let i=0; i<items.length; i++) {
-    if(i == def_item) continue;
+    let item;
     
-    menu.children[i].addEventListener('click', () => {
+    if(i == def_item) continue;
+    else if(i == 0) item = qs('.acc_icon');
+    else item = menu.children[i];
+    
+    item.addEventListener('click', () => {
       require(`./modules/${items[i]}`).load(user);
     }, { once: true });
   }

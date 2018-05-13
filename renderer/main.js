@@ -25,8 +25,6 @@ const update = require('./js/update'); update();
 const settings_json = require('./settings.json');
 const vkapi = require('./js/vkapi');
 
-// 5A626B
-
 var header = qs('.header'),
     content = qs('.content'),
     wrapper_content = qs('.wrapper_content'),

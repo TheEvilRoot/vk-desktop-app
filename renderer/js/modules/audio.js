@@ -15,6 +15,7 @@
 
 const { BrowserWindow } = require('electron').remote;
 const https = require('https');
+const { request } = utils;
 
 danyadev.audio = {};
 
@@ -259,7 +260,7 @@ var toggleAudio = (track, event) => {
 
     let bgi = track.children[0].children[0].style.backgroundImage;
 
-    if(bgi != 'url("https://vk.com/images/audio_row_placeholder.png")') {
+    if(bgi != 'url("images/empty_cover.svg")') {
       player_cover.style.backgroundImage = bgi;
     } else player_cover.style.backgroundImage = 'url("images/empty_cover.svg")';
 
@@ -591,30 +592,28 @@ var arrayShuffle = arr => {
   );
 };
 
-var downloadAudio = block => {
-  let data = JSON.parse(block.attributes.data.value),
-      author = data[0], name = data[1], url = data[2];
+var downloadAudio = id => {
+  let data = danyadev.audio.list[id],
+      author = data.artist, name = data.title, url = data.url,
+      file_name = `${author} – ${name}.mp3`,
+      file_path = `${utils.downloadsPath}/${file_name}`;
+  
+  request(url, res => {
+    let body = Buffer.alloc(0);
 
-  if(block.classList.contains('audio_downloaded')) return;
-
-  setTimeout(() => {
-    let file_name = `${author} – ${name}.mp3`,
-        file = fs.createWriteStream(danyadev.user.downloadPath + file_name);
-
-    https.get(url, res => {
-      res.on('data', data => file.write(data));
-      res.on('end', () => {
-        file.end();
-
-        block.classList.add('audio_downloaded');
-        block.classList.remove('audio_download');
+    res.on('data', ch => body = Buffer.concat([body, ch]));
+    res.on('end', () => {
+      fs.writeFile(file_path, body, () => {
+        // файл скачан
+        console.log(`Аудиозапись "${file_name}" скачана в папку загрузок.`);
       });
     });
-  }, 0);
+  });
 }
 
 module.exports = {
   load,
   toggleAudio,
-  toggleTime
+  toggleTime,
+  downloadAudio
 }

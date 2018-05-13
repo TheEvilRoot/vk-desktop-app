@@ -270,12 +270,15 @@
 
 .link {
   display: inline-block;
-  color: #0000db;
+  color: #2a5885;
   cursor: pointer;
   user-select: none;
   transition: color .3s;
 }
 
-.link:hover {
-  color: #4040ff;
+.img_verified {
+  margin-bottom: 2px;
+  vertical-align: middle;
+  user-select: none;
+  -webkit-user-drag: none;
 }

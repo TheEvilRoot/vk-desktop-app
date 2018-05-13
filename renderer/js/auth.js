@@ -95,6 +95,7 @@ var auth = params => {
     
     error_info.innerHTML = '';
     twofa_info.innerHTML = '';
+    
     refreshToken({ access_token: data.access_token }, ref_token => {
       vkapi.method('users.get', {
         access_token: data.access_token,
@@ -109,7 +110,6 @@ var auth = params => {
           platform: data.platform,
           login: data.login,
           password: data.password,
-          downloadPath: process.env.USERPROFILE + '\\Downloads\\',
           first_name: user_info.response[0].first_name,
           last_name: user_info.response[0].last_name,
           photo_100: user_info.response[0].photo_100,

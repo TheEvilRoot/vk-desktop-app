@@ -1,6 +1,8 @@
-.friends_list, .friends_list_err {
+.friends_list {
   padding: 10px;
 }
+
+.friends_list_err { padding: 0 10px }
 
 .friend_item, .friend_item_err {
   background-color: white;
@@ -13,6 +15,11 @@
   margin: 0 auto 10px auto;
 }
 
+.friend_item_err {
+  margin-top: -10px;
+  height: auto;
+}
+
 .friend_img {
   width: 70px;
   height: 70px;
@@ -20,6 +27,7 @@
   float: left;
   margin-right: 12px;
   -webkit-user-drag: none;
+  user-select: none;
 }
 
 .friend_names {
@@ -36,11 +44,6 @@
 
 .friend_occupation {
   color: #656565;
-}
-
-.friend_verify {
-  margin-bottom: 2px;
-  vertical-align: middle;
 }
 
 .friend_inet_err {

@@ -51,6 +51,24 @@
   border-top: 1px solid #19222e;
 }
 
+.blue_theme .post_like_img:not(.post_btn_act_i),
+.blue_theme .post_comment_img:not(.post_btn_act_i),
+.blue_theme .post_repost_img:not(.post_btn_act_i),
+.blue_theme .post_views_img:not(.post_btn_act_i) {
+  background-color: #79838f;
+}
+
+.blue_theme .post_like_count:not(.post_btn_act_c),
+.blue_theme .post_comment_count:not(.post_btn_act_c),
+.blue_theme .post_repost_count:not(.post_btn_act_c),
+.blue_theme .post_views_count:not(.post_btn_act_c) {
+  color: #86919e;
+}
+
+.blue_theme .link {
+  color: #9c9c9c
+}
+
 /* стили для выделенных в меню элементов */
 .blue_theme .menu_item:hover,
 .blue_theme .menu_item_active:not(.menu_account_item),

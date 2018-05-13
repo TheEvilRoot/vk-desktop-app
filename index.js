@@ -12,22 +12,27 @@
 try {
   require('./../reload/node_modules/electron-reload')(__dirname, {
     ignored: [
-      __dirname + '/docs',
-      __dirname + '/.git',
-      __dirname + '/index.js',
-      __dirname + '/dev.json',
-      __dirname + '/README.md',
-      __dirname + '/package.json',
-      __dirname + '/node_modules',
-      __dirname + '/renderer/users.json',
-      __dirname + '/renderer/settings.json'
+      `${__dirname}/docs`,
+      `${__dirname}/.git`,
+      `${__dirname}/index.js`,
+      `${__dirname}/dev.json`,
+      `${__dirname}/README.md`,
+      `${__dirname}/package.json`,
+      `${__dirname}/node_modules`,
+      `${__dirname}/renderer/users.json`,
+      `${__dirname}/renderer/settings.json`
     ]
   });
 } catch(e) {};
 
 const { app, BrowserWindow } = require('electron');
 const fs = require('fs');
-const SETTINGS_PATH = __dirname + '/renderer/settings.json';
+const SETTINGS_PATH = `${__dirname}/renderer/settings.json`;
+const USERS_PATH = `${__dirname}/renderer/users.json`;
+
+if(!fs.existsSync(USERS_PATH)) {
+  fs.writeFileSync(USERS_PATH, '{}', 'utf-8');
+}
 
 var settings = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf-8'));
 

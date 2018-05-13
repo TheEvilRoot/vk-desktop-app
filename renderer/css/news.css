@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright © 2018 danyadev
   Лицензия - Apache 2.0
 
@@ -42,6 +42,8 @@
   border-radius: 50%;
   float: left;
   margin-right: 10px;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 .post_names {
@@ -93,47 +95,76 @@
 
 .post_bottom {
   margin: 0 10px;
-  padding: 11px 0;
+  padding-top: 5px;
   border-top: 1px solid #e7e8ec;
-  height: 40px;
+  height: 35px;
+  user-select: none;
+  cursor: default;
 }
 
-.post_like {
-  color: #2a5885;
+.post_like_img, .post_comment_img, .post_repost_img, .post_views_img {
+  float: left;
+  width: 24px;
+  height: 24px;
+  -webkit-mask-size: cover;
+  background-color: #bdbdbd;
+}
+
+.post_like_count, .post_comment_count, .post_repost_count {
+  color: #7f7f7f;
+  float: left;
+  padding-left: 5px;
+  padding-top: 2px;
   font-weight: 500;
 }
 
-.post_like_img, .post_comment_img {
+.post_like {
   display: inline-block;
-  float: left;
-  width: 17px;
-  height: 14px;
-  margin-top: 1px;
+  cursor: pointer;
 }
 
-.post_like_text, .post_comment_text {
-  display: inline-block;
-  line-height: 15px;
-  height: 14px;
-  margin-left: 7px;
-  float: left;
-}
-
-.post_like_count, .post_comment_count {
-  margin-left: 6px;
-  float: left;
-  line-height: 15px;
-  height: 14px;
+.post_like_img {
+  -webkit-mask-image: url('../images/post_like.png');
 }
 
 .post_comment {
-  
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 50px;
+}
+
+.post_comment_img {
+  -webkit-mask-image: url('../images/post_comment.png');
 }
 
 .post_repost {
-  
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 50px;
+}
+
+.post_repost_img {
+  -webkit-mask-image: url('../images/post_repost.png');
 }
 
 .post_views {
-  
+  float: right;
 }
+
+.post_views_img {
+  -webkit-mask-image: url('../images/post_views.png');
+}
+
+.post_views_count {
+  margin-left: 4px;
+  float: right;
+  line-height: 16px;
+  height: 16px;
+  color: #7f7f7f;
+  position: relative;
+  top: 4px;
+  font-weight: 500;
+}
+
+.post_btn_act_i { background-color: #5683C3 }
+.post_btn_act_c { color: #5683C3 }

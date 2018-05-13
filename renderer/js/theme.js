@@ -28,8 +28,8 @@ module.exports = type => {
       qs('body').classList.remove(attrs[0]);
     }
     
-    qs('body').classList.add(type + '_theme');
+    qs('body').classList.add(`${type}_theme`);
   } else {
-    qs('body').classList.add(settings.theme + '_theme');
+    qs('body').classList.add(`${settings.theme}_theme`);
   }
 }
