@@ -86,7 +86,7 @@ var getLocalFiles = callback => {
     for(let i in files) {
       let name = `${dir}/${files[i]}`;
 
-      if(files[i] == 'dev.json') continue;
+      if(files[i] == 'dev.json' || files[i] == 'users.json') continue;
 
       if(fs.statSync(name).isDirectory()) {
         getFiles(name, files_);
