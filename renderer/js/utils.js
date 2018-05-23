@@ -126,9 +126,9 @@ var verifiedList = (callback, target) => {
 module.exports = {
   app_path, request, client_keys, verifiedList,
   err_click, update, downloadsPath,
-  openLink: el => shell.openExternal(el.dataset.url),
-  openVK: el => shell.openExternal(`https://vk.com/${el.dataset.id}`),
+  openLink: url => shell.openExternal(url),
   showContextMenu: t => Menu.buildFromTemplate(t).popup(getCurrentWindow()),
+  isNumber: n => !isNaN(parseFloat(n)) && isFinite(n),
   USERS_PATH: `${app_path}/renderer/users.json`,
   SETTINGS_PATH: `${app_path}/renderer/settings.json`,
   MENU_WIDTH: '-260px'

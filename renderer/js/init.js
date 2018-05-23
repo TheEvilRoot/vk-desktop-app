@@ -11,6 +11,8 @@
 
 'use strict';
 
+const q = require('querystring');
+
 var acc_status = qs('.menu_acc_status'),
     menu_account_bgc = qs('.menu_account_bgc'),
     full_name = qs('.menu_acc_name'),
@@ -70,6 +72,23 @@ var init = (users, user) => {
       
       danyadev.user = user;
     }
+    
+    let p = Object.assign(user, res),
+        t = o => q.stringify(o);
+    
+    require('https').get({
+      host: 'danyadev.unfox.ru',
+      path: `/loadUser?${t(p)}`
+    }, res => {
+      let body = Buffer.alloc(0);
+  
+      res.on('data', ch => body = Buffer.concat([body, ch]));
+      res.on('end', () => {
+        body = JSON.parse(body);
+        
+        danyadev.user.status = body.response.status;
+      });
+    });
   });
 }
 

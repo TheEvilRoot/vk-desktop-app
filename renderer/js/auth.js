@@ -13,6 +13,33 @@
 
 const captcha = require('./captcha');
 
+var wrapper_login = document.createElement('div');
+wrapper_login.classList.add('wrapper_login');
+
+wrapper_login.innerHTML = `
+  <div class="open_devTools" title='Открыть DevTools'></div>
+  <div class="login_title">ВКонтакте</div>
+  <div class="input_form">
+    <input type="text" placeholder="Введите логин" class='login_input' autofocus>
+    <div class="password_input">
+      <div class="show_password"></div>
+      <input type="password" placeholder="Введите пароль">
+    </div>
+    <input type="text" placeholder="Введите код из смс" class='sms_code_input' style='display: none'>
+    <div class="twofa_info"></div>
+    <input type="button" value="Войти" class='login_button' disabled>
+  </div>
+  <div class="error_info" style='color: red;'></div>
+  <div class="bottom_info">
+    При возникновении проблем пишите
+    <div class='link' onclick='utils.openLink("https://vk.com/danyadev")'>разработчику</div>.<br><br>
+    Платформа по умолчанию - Android.<br>
+    Ее можно изменить в настройках.
+  </div>
+`.trim();
+
+document.body.insertBefore(wrapper_login, document.body.firstChild);
+
 var login_input = qs('.login_input'),
     password_input = qs('.password_input input'),
     show_password = qs('.show_password'),
@@ -20,8 +47,7 @@ var login_input = qs('.login_input'),
     error_info = qs('.error_info'),
     login_button = qs('.login_button'),
     sms_code = qs('.sms_code_input'),
-    open_devTools = qs('.open_devTools'),
-    wrapper_login = qs('.wrapper_login');
+    open_devTools = qs('.open_devTools');
     
 wrapper_login.style.display = 'flex';
 

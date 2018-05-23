@@ -29,24 +29,21 @@ UFT_PHOTO_WALL:         ['photo', 'photos.getWallUploadServer', 'photos.saveWall
 UFT_VIDEO:              ['video_file', 'video.save']
 */
 
-/*
-  function post(message) {
-    vkapi.method('wall.post', {
-      from_group: 1,
-      signed: 1,
-      message: message,
-      owner_id: 88262293,
-      publish_date: parseInt(new Date().getTime()/1000) + 60
-    });
-  }
-*/
+// var signedPost = message => {
+//   vkapi.method('wall.post', {
+//     signed: 1,
+//     message: message,
+//     owner_id: 88262293,
+//     publish_date: parseInt(new Date().getTime()/1000) + 60
+//   });
+// }
 
 const https = require('https');
 const fs = require('fs');
 const querystring = require('querystring');
 const { getCurrentWindow } = require('electron').remote;
 const { request, client_keys } = utils;
-const API_VERSION = 5.74;
+const API_VERSION = 5.76;
 const captcha = require('./captcha');
 
 var toURL = obj => querystring.stringify(obj),
@@ -69,9 +66,8 @@ var method = (method_name, params, callback, target) => {
   });
 
   console.log(method_name, params);
-  process.log('\nAPI REQ: ' + method_name)
 
-  params.access_token = params.access_token || users[id].access_token;
+  params.access_token = params.access_token || users[id] && users[id].access_token;
 
   request({
     host: 'api.vk.com',
@@ -83,16 +79,7 @@ var method = (method_name, params, callback, target) => {
 
     res.on('data', ch => body = Buffer.concat([body, ch]));
     res.on('end', () => {
-      body = body.toString();
-
-      if(body[0] == '<') {
-        let a = document.createElement('div');
-        a.innerHTML = body;
-
-        body = {
-          error: a.getElementsByTagName('title')[0].outerText
-        };
-      } else body = JSON.parse(body);
+      body = JSON.parse(body);
 
       console.log(body);
 
@@ -104,11 +91,8 @@ var method = (method_name, params, callback, target) => {
                    callback,
                    target);
           });
-        }
-
-        if(body.error.error_msg == 'User authorization failed: invalid session.') {
+        } else if(body.error.error_msg == 'User authorization failed: invalid session.') {
           console.log(body.error.error_code);
-          // можно будет выводить окошечко с формой входа, где будет логин и пароль уже введен
           delete users[id];
 
           if(Object.keys(users).length > 0) users[Object.keys(users)[0]].active = true;
@@ -116,7 +100,7 @@ var method = (method_name, params, callback, target) => {
           getCurrentWindow().reload();
         } else if(body.error.ban_info) {
           qs('.user_banned').style.display = 'block';
-        }
+        } else callback(body);
       } else callback(body);
     });
   }, target);
@@ -160,6 +144,8 @@ var auth = (params, callback, target) => {
     res.on('end', () => {
       body = JSON.parse(body);
       users = JSON.parse(users);
+      
+      console.log('auth', body);
 
       if(body.error == 'need_captcha') {
         qs('.login_button').disabled = false;

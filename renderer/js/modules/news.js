@@ -44,17 +44,17 @@ var getNews = () => {
     filters: 'post,photo',
     fields: 'id,verified,first_name,first_name_dat,first_name_acc,last_name,last_name_acc,last_name_gen,sex,screen_name,photo_50,photo_100,online,video_files'
   }, data => {
-    if(!data.response.next_from) {
+    if(start_from == undefined) {
       qs('.news_content_err').style.display = '';
-      qs('.news_inet_err').innerHTML = `Показаны последние новости`;
+      qs('.news_inet_err').innerHTML = 'Показаны последние новости';
 
       return;
     }
 
-      qs('.news_inet_err').innerHTML = 'Загрузка...';
+    qs('.news_inet_err').innerHTML = 'Загрузка...';
 
     start_from = data.response.next_from;
-
+    
     for(let i = 0; i < data.response.items.length; i++) {
       let item = data.response.items[i],
           verified = '', sign = '', head_data,
@@ -70,20 +70,21 @@ var getNews = () => {
             'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
           ];
 
-      if(item.caption && item.caption.type == "explorebait") continue;
+      if(item.caption && item.caption.type == 'explorebait') continue;
 
       if(this_time.toLocaleDateString() == time.toLocaleDateString()) {
-        parsed_time += 'Сегодня в ';
+        parsed_time += 'Сегодня';
       } else if(this_time.getFullYear() == time.getFullYear()) {
-        parsed_time += `${time.getDate()} ${months[time.getMonth()]} в `;
+        parsed_time += `${time.getDate()} ${months[time.getMonth()]}`;
       } else {
-        parsed_time += `${time.getDate()} ${months[time.getMonth()]} ${time.getFullYear()} в `;
+        parsed_time += `${time.getDate()} ${months[time.getMonth()]} ${time.getFullYear()}`;
       }
 
-      parsed_time += `${time.getHours()}:${mins}`;
+      parsed_time += ` в ${time.getHours()}:${mins}`;
 
       if(item.source_id.toString()[0] == '-') {
-        item.source_id = item.source_id.toString().replace(/-/, '');
+        item.source_id = Math.abs(item.source_id);
+        
         head_data = data.response.groups.find(el => el.id == item.source_id);
         head_name = head_data.name;
 
@@ -104,6 +105,7 @@ var getNews = () => {
 
         if(item.copy_history) {
           if(text) text += '\n';
+          
           text += '*репост*';
         }
 
@@ -143,13 +145,13 @@ var getNews = () => {
               text += '*Документ*';
             } else if(attach.type == 'link') {
               text += '*Ссылка*';
+            } else if(attach.type == 'note') {
+              text += '*Заметка*';
             } else {
               text += `Неизвестный тип прикрепления.\n
-                       Скиньте текст ниже
-                       <div data-url='https://vk.com/danyadev' class='link'
-                            onclick='utils.openLink(this)'>разработчику</div>:\n
-                       ${JSON.stringify(attach)}
-                      `;
+                Скиньте текст ниже <div class='link' onclick='utils.openLink("https://vk.com/danyadev")'>разработчику</div>:\n
+                ${JSON.stringify(attach)}
+              `;
             }
 
             if(j != item.attachments.length-1) text += '\n';
@@ -160,7 +162,7 @@ var getNews = () => {
                       добавил${head_data.sex == 1 ? 'a' : ''}
                       новую фотографию</span>`;
 
-        for(let j=0; j<item.photos.count; j++) {
+        for(let j=0; j<item.photos.items.length; j++) {
           let photo = item.photos.items[j];
 
           text += `<img src="${photo.photo_604}" class="post_img">`;
@@ -177,57 +179,47 @@ var getNews = () => {
 
       text = text.replace(/\n/g, '<br>')
                  .replace(/\[(\w+)\|([^[]+)\]/g,
-                          '<div data-id="$1" class="link" onclick="utils.openVK(this)">$2</div>');
+                          '<div class="link" onclick="utils.openLink(\'https://vk.com/$1\')">$2</div>');
+      
+      let post_bottom = '';
+      
+      if(item.type != 'photo') {
+        let likes = item.likes.count || '',
+            comments = item.comments.count || '',
+            reposts = item.reposts.count || '',
+            views = item.views && item.views.count || 0;
+            
+        
+        var reduceNum = num => {
+          let rn = null;
           
-      let likes = item.likes.count || '',
-          comments = item.comments.count || '',
-          reposts = item.reposts.count || '',
-          views = item.views && item.views.count || 0;
+          if(num >= 1000) {
+            if(num >= 1000000) rn = (num / 1000000).toFixed(1) + 'M';
+            else rn = (num / 1000).toFixed(1) + 'K';
+          }
           
-          
-      if(likes >= 1000) {
-        if(likes >= 1000000) likes = (likes / 1000000).toFixed(1) + 'M';
-        else likes = (likes / 1000).toFixed(1) + 'K';
-      }
-      
-      if(comments >= 1000) {
-        if(comments >= 1000000) comments = (comments / 1000000).toFixed(1) + 'M';
-        else comments = (comments / 1000).toFixed(1) + 'K';
-      }
-      
-      if(reposts >= 1000) {
-        if(reposts >= 1000000) reposts = (reposts / 1000000).toFixed(1) + 'M';
-        else reposts = (reposts / 1000).toFixed(1) + 'K';
-      }
-      
-      if(views >= 1000) {
-        if(views >= 1000000) views = (views / 1000000).toFixed(1) + 'M';
-        else views = (views / 1000).toFixed(1) + 'K';
-      }
-      
-      let like_act_img   = '', like_act_cnt   = '',
-          repost_act_img = '', repost_act_cnt = '';
+          return rn || num;
+        }
+        
+        likes = reduceNum(likes);
+        comments = reduceNum(comments);
+        reposts = reduceNum(reposts);
+        views = reduceNum(views);
+        
+        let like_act_img   = '', like_act_cnt   = '',
+            repost_act_img = '', repost_act_cnt = '';
 
-      if(item.likes.user_likes) {
-        like_act_img = 'post_btn_act_i';
-        like_act_cnt = 'post_btn_act_c';
-      }
-      
-      if(item.reposts.user_reposted) {
-        repost_act_img = 'post_btn_act_i';
-        repost_act_cnt = 'post_btn_act_c';
-      }
-
-      news_content.innerHTML += `
-        <div class='news_block theme_block'>
-          <div class='post_header'>
-            <img src="${head_data.photo_50}" class="post_header_img">
-            <div class="post_names">
-              <div class="post_name">${head_name} ${verified} ${head_update}</div>
-              <div class="post_time">${parsed_time}</div>
-            </div>
-          </div>
-          <div class="post_content">${text} ${sign}</div>
+        if(item.likes.user_likes) {
+          like_act_img = 'post_btn_act_i';
+          like_act_cnt = 'post_btn_act_c';
+        }
+        
+        if(item.reposts.user_reposted) {
+          repost_act_img = 'post_btn_act_i';
+          repost_act_cnt = 'post_btn_act_c';
+        }
+        
+        post_bottom = `
           <div class="post_bottom">
             <div class="post_like">
               <img class="post_like_img ${like_act_img}">
@@ -246,6 +238,20 @@ var getNews = () => {
               <div class="post_views_count">${views}</div>
             </div>
           </div>
+        `.trim();
+      }
+
+      news_content.innerHTML += `
+        <div class='news_block theme_block'>
+          <div class='post_header'>
+            <img src="${head_data.photo_50}" class="post_header_img">
+            <div class="post_names">
+              <div class="post_name">${head_name} ${verified} ${head_update}</div>
+              <div class="post_time">${parsed_time}</div>
+            </div>
+          </div>
+          <div class="post_content">${text} ${sign}</div>
+          ${post_bottom}
         </div>
       `.trim();
     }
@@ -286,6 +292,14 @@ var renderNewItems = () => {
 //     else text += ', ';
 //   })
 
+var like = (oid, iid) => {
+  vkapi.method('likes.add', {
+    type: 'post',
+    owner_id: oid,
+    item_id: iid
+  });
+}
+
 module.exports = {
-  load, getNews
+  load, getNews, like
 }
