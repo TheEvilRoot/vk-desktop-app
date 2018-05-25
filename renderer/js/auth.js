@@ -97,7 +97,7 @@ var auth = params => {
     platform: 0,
     code: sms_code.value
   }, data => {
-    if(data.error) {
+    if(data.error && !data.access_token) {
       login_button.disabled = false;
       
       if(data.error_description == 'Username or password is incorrect') {
