@@ -116,13 +116,13 @@ if(users.trim() == '') {
   fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
 } else users = JSON.parse(users);
 
-var users_keys = Object.keys(users);
+var keys = Object.keys(users);
 
-if(users_keys.length > 0) {
+if(keys.length > 0 && keys.find(r => users[r].active == true)) {
   wrapper_content.style.display = 'block';
 
-  for(let i=0; i<users_keys.length; i++) {
-    let key = users_keys[i];
+  for(let i=0; i<keys.length; i++) {
+    let key = keys[i];
 
     if(users[key].active) {
       require('./js/init')(users, users[key]);

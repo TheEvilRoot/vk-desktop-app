@@ -9,7 +9,8 @@
 */
 
 /* стили для блоков и шапки */
-.twilight_theme .theme_block {
+.twilight_theme .theme_block,
+.twilight_theme .block {
   background-color: #2B3034;
   box-shadow: 0 0 0 1px #222629;
 }

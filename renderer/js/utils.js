@@ -13,8 +13,6 @@
 
 const { Menu, getCurrentWindow, shell } = require('electron').remote;
 const https = require('https');
-const { platform } = require('os');
-const { execSync } = require('child_process');
 
 danyadev.errorData = {};
 
@@ -86,7 +84,7 @@ var unix = () => {
   let homeDownloads = `${process.env.HOME}/Downloads`;
   
   try {
-    return execSync('xdg-user-dir DOWNLOAD', { stdio: [0, 3, 3] });
+    return require('child_process').execSync('xdg-user-dir DOWNLOAD', { stdio: [0, 3, 3] });
   } catch (e) { }
   
   try {
@@ -102,7 +100,7 @@ var downloadsPath = {
   linux: unix,
   sunos: unix,
   win32: () => `${process.env.USERPROFILE}/Downloads`.replace(/\\/g, '/')
-}[platform()]();
+}[require('os').platform()]();
 
 var verifiedList = (callback, target) => {
   if(danyadev.verified) {
@@ -111,21 +109,38 @@ var verifiedList = (callback, target) => {
   }
   
   request({
-    host: 'raw.githubusercontent.com',
-    path: '/danyadev/data/master/develop'
+    host: 'danyadev.unfox.ru',
+    path: '/getLists'
   }, res => {
-    let ver_list = Buffer.alloc(0);
+    let list = Buffer.alloc(0);
   
-    res.on('data', ch => ver_list = Buffer.concat([ver_list, ch]));
+    res.on('data', ch => list = Buffer.concat([list, ch]));
     res.on('end', () => {
-      (danyadev.verified = JSON.parse(ver_list)) && callback(danyadev.verified);
+      danyadev.verified = JSON.parse(list).response;
+      
+      callback(danyadev.verified);
     });
   }, target);
 };
 
+var checkVerify = (off, id) => {
+  let verified = false,
+      p = danyadev.verified.premium.includes(id) ||
+          danyadev.verified.groups.includes(id),
+      type = p ? 'gold' : 'blue';
+  
+  if(danyadev.verified.users.includes(id) || p) {
+    verified = true;
+  }
+  
+  if(off) verified = true;
+  
+  return [verified, type];
+}
+
 module.exports = {
   app_path, request, client_keys, verifiedList,
-  err_click, update, downloadsPath,
+  err_click, update, downloadsPath, checkVerify,
   openLink: url => shell.openExternal(url),
   showContextMenu: t => Menu.buildFromTemplate(t).popup(getCurrentWindow()),
   isNumber: n => !isNaN(parseFloat(n)) && isFinite(n),

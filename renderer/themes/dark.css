@@ -9,7 +9,8 @@
 */
 
 /* стили для блоков и шапки */
-.dark_theme .theme_block {
+.dark_theme .theme_block,
+.dark_theme .block {
   background-color: #333336;
   box-shadow: 0 0 0 1px #282828;
 }

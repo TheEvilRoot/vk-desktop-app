@@ -14,7 +14,7 @@
 const https = require('https');
 const path = require('path');
 const { dialog, app } = require('electron').remote;
-const { request, app_path } = utils;
+const { app_path } = utils;
 
 var mkdirP = p => {
   p = path.resolve(p);
@@ -33,7 +33,7 @@ var getGithubFiles = (user, repo, removeList, callback) => {
   let fileList = [], allFiles = [], dirCount = 0, dirs = 0;
 
   let sendReq = path => {
-    request({
+    utils.request({
       host: 'api.github.com',
       path: `/repos/${user}/${repo}/contents/${path}?client_id=2cca2222a6f211d96eb5&client_secret=7ca0d642c52d3c5c4d793782993da8691152a8f3`,
       headers: { 'User-Agent': 'vk.com/danyadev' }
@@ -100,7 +100,7 @@ var getLocalFiles = callback => {
 }
 
 var update = () => {
-  request('https://raw.githubusercontent.com/danyadev/vk-desktop-app/master/package.json', res => {
+  utils.request('https://raw.githubusercontent.com/danyadev/vk-desktop-app/master/package.json', res => {
     let body = Buffer.alloc(0);
 
     res.on('data', ch => body = Buffer.concat([body, ch]));
@@ -132,7 +132,7 @@ var update = () => {
               mkdirP(filename.replace(/[A-z]+\.[A-z]+/, ''));
             }
 
-            request({
+            utils.request({
               host: 'raw.githubusercontent.com',
               path: `/danyadev/vk-desktop-app/master${encodeURIComponent(githubFile)}`
             }, res => {

@@ -9,28 +9,11 @@
    github: https://github.com/danyadev/vk-desktop-app
 */
 
-.news_content {
-  padding: 15px;
-}
+.news_list { padding: 10px }
 
-.news_content_err {
-  padding: 0 15px;
-  margin-top: -15px;
-}
-
-.news_block {
-  background-color: white;
-  box-shadow: 0 1px 0 0 #d7d8db, 0 0 0 1px #e3e4e8;
-  border-radius: 2px;
-  margin-bottom: 15px;
-  overflow-wrap: break-word;
-}
-
-.news_inet_err {
-  margin: 0 auto;
-  padding: 20px 0;
-  width: 220px;
-  text-align: center;
+.news_list_err {
+  padding: 10px;
+  margin-top: -20px;
 }
 
 .post_header {
@@ -77,14 +60,6 @@
   -webkit-user-drag: none;
 }
 
-.emoji {
-  margin: 0 1px;
-  vertical-align: -3px;
-  width: 16px;
-  height: 16px;
-  background: url('https://vk.com/images/im_emoji.png') no-repeat;
-}
-
 .post_signer {
   display: inline-block;
   padding: 0 0 0 15px;
@@ -100,7 +75,7 @@
   margin: 0 10px;
   padding-top: 7px;
   border-top: 1px solid #e7e8ec;
-  height: 40px;
+  height: 35px;
   user-select: none;
   cursor: default;
 }
@@ -171,3 +146,11 @@
 
 .post_btn_act_i { background-color: #5683C3 }
 .post_btn_act_c { color: #5683C3 }
+
+.emoji {
+  margin: 0 1px;
+  vertical-align: -3px;
+  width: 16px;
+  height: 16px;
+  background: url('https://vk.com/images/im_emoji.png') no-repeat;
+}

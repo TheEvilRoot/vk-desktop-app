@@ -12,7 +12,6 @@
 'use strict';
 
 const { dialog } = require('electron').remote;
-const { keys } = utils;
 
 var settings_tabs = qs('.settings_tabs'),
     settings_content_block = qs('.settings_content_block'),

@@ -12,25 +12,13 @@
 'use strict';
 
 const emoji = require('./emoji');
-const { request } = utils;
 
-var news_content = qs('.news_content'),
+var news_list = qs('.news_list'),
     content = qs('.content'),
     start_from = '';
 
 var load = () => {
-  request({
-    host: 'raw.githubusercontent.com',
-    path: '/danyadev/data/master/develop'
-  }, res => {
-    let ver_list = Buffer.alloc(0);
-
-    res.on('data', ch => ver_list = Buffer.concat([ver_list, ch]));
-    res.on('end', () => {
-      danyadev.verified = JSON.parse(ver_list);
-      getNews();
-    });
-  }, 'news_inet_err');
+  utils.verifiedList(getNews, 'news_item_err');
 }
 
 // ads filters: friends_recomm,ads_app,ads_site,ads_post,ads_app_slider
@@ -45,13 +33,11 @@ var getNews = () => {
     fields: 'id,verified,first_name,first_name_dat,first_name_acc,last_name,last_name_acc,last_name_gen,sex,screen_name,photo_50,photo_100,online,video_files'
   }, data => {
     if(start_from == undefined) {
-      qs('.news_content_err').style.display = '';
-      qs('.news_inet_err').innerHTML = 'Показаны последние новости';
+      qs('.news_list_err').style.display = '';
+      qs('.news_item_err').innerHTML = 'Показаны последние новости';
 
       return;
     }
-
-    qs('.news_inet_err').innerHTML = 'Загрузка...';
 
     start_from = data.response.next_from;
     
@@ -87,21 +73,30 @@ var getNews = () => {
         
         head_data = data.response.groups.find(el => el.id == item.source_id);
         head_name = head_data.name;
+        
+        let _v = utils.checkVerify(head_data.verified, head_data.id);
 
-        if(head_data.verified || danyadev.verified[1].includes(head_data.id)) {
-          verified = '<img class="img_verified" src="images/verify.png">';
+        if(_v[0]) {
+          verified = `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
         }
       } else {
         head_data = data.response.profiles.find(el => el.id == item.source_id);
         head_name = `${head_data.first_name} ${head_data.last_name}`;
+        
+        let _v = utils.checkVerify(head_data.verified, head_data.id);
 
-        if(head_data.verified || danyadev.verified[0].includes(head_data.id)) {
-          verified = '<img class="img_verified" src="images/verify.png">';
+        if(_v[0]) {
+          verified = `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
         }
       }
 
       if(item.type == 'post') {
         text = item.text;
+        
+        text = text.replace(/\[(\w+)\|([^[]+)\]/g,
+                            '<div class="link" onclick="utils.openLink(\'https://vk.com/$1\')">$2</div>')
+                   .replace(/([-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)/gi,
+                           '<div class="link" onclick="utils.openLink(\'$1\')">$1</div>');
 
         if(item.copy_history) {
           if(text) text += '\n';
@@ -132,7 +127,8 @@ var getNews = () => {
             let attach = item.attachments[j];
 
             if(attach.type == 'photo') {
-              text += `<img src="${attach.photo.photo_604}" class="post_img">`;
+              let ph = attach.photo.sizes.find(s => s.type == 'x');
+              text += `<img src="${ph.url}" class="post_img">`;
             } else if(attach.type == 'audio') {
               text += '*Аудиозапись*';
             } else if(attach.type == 'article') {
@@ -147,6 +143,8 @@ var getNews = () => {
               text += '*Ссылка*';
             } else if(attach.type == 'note') {
               text += '*Заметка*';
+            } else if(attach.type == 'audio_playlist') {
+              text += '*Плейлист*';
             } else {
               text += `Неизвестный тип прикрепления.\n
                 Скиньте текст ниже <div class='link' onclick='utils.openLink("https://vk.com/danyadev")'>разработчику</div>:\n
@@ -176,10 +174,8 @@ var getNews = () => {
 
         sign = `<br><div class='post_signer'>${signer.first_name} ${signer.last_name}</div>`;
       }
-
-      text = text.replace(/\n/g, '<br>')
-                 .replace(/\[(\w+)\|([^[]+)\]/g,
-                          '<div class="link" onclick="utils.openLink(\'https://vk.com/$1\')">$2</div>');
+                          
+      text = text.replace(/\n/g, '<br>');
       
       let post_bottom = '';
       
@@ -241,8 +237,8 @@ var getNews = () => {
         `.trim();
       }
 
-      news_content.innerHTML += `
-        <div class='news_block theme_block'>
+      news_list.innerHTML += `
+        <div class='block'>
           <div class='post_header'>
             <img src="${head_data.photo_50}" class="post_header_img">
             <div class="post_names">
@@ -257,21 +253,21 @@ var getNews = () => {
     }
 
     loadNewNews();
-  }, 'news_inet_err');
+  }, 'news_item_err');
 }
 
-var loadNewNews = start_from => {
+var loadNewNews = () => {
   content.addEventListener('scroll', renderNewItems);
 
-  let h = window.screen.height > news_content.clientHeight;
+  let h = window.screen.height > news_list.clientHeight;
 
-  if(h || news_content.clientHeight - window.outerHeight < window.scrollY) renderNewItems();
+  if(h || news_list.clientHeight - window.outerHeight < window.scrollY) renderNewItems();
 }
 
 var renderNewItems = () => {
-  let h = window.screen.height > news_content.clientHeight,
-      l = news_content.clientHeight - window.outerHeight < content.scrollTop,
-      a = qs('.news_content').parentNode.classList.contains('content_active');
+  let h = window.screen.height > news_list.clientHeight,
+      l = news_list.clientHeight - window.outerHeight - 100 < content.scrollTop,
+      a = news_list.parentNode.classList.contains('content_active');
 
   if(a && (h || l)) {
     content.removeEventListener('scroll', renderNewItems);

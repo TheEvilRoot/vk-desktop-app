@@ -1,0 +1,18 @@
+/* 
+  Copyright © 2018 danyadev
+  Лицензия - Apache 2.0
+
+  Контактные данные:
+   vk: https://vk.com/danyadev
+   или https://vk.com/danyadev0
+   telegram: https://t.me/danyadev
+   github: https://github.com/danyadev/vk-desktop-app
+*/
+
+.notifications_list { padding: 10px }
+
+.notifications_list_err {
+  padding: 10px;
+  margin-top: -20px;
+}
+

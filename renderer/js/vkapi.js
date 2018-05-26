@@ -42,8 +42,7 @@ const https = require('https');
 const fs = require('fs');
 const querystring = require('querystring');
 const { getCurrentWindow } = require('electron').remote;
-const { request, client_keys } = utils;
-const API_VERSION = 5.76;
+const API_VERSION = 5.78;
 const captcha = require('./captcha');
 
 var toURL = obj => querystring.stringify(obj),
@@ -69,7 +68,7 @@ var method = (method_name, params, callback, target) => {
 
   params.access_token = params.access_token || users[id] && users[id].access_token;
 
-  request({
+  utils.request({
     host: 'api.vk.com',
     path: `/method/${method_name}?${toURL(params)}`,
     method: 'GET',
@@ -113,7 +112,7 @@ var auth = (params, callback, target) => {
   params.platform = params.platform || 0;
   callback = callback || (() => {});
 
-  let client = client_keys[params.platform];
+  let client = utils.client_keys[params.platform];
 
   let reqData = {
     grant_type: 'password',
@@ -134,7 +133,7 @@ var auth = (params, callback, target) => {
 
   if(params.code) reqData.code = params.code;
 
-  request({
+  utils.request({
     host: 'oauth.vk.com',
     path: `/token/?${toURL(reqData)}`
   }, res => {
@@ -170,7 +169,7 @@ var longpoll = (params, callback) => {
     version: params.version || 2
   }
 
-  request(`https://${params.server}?${toURL(options)}`, data => {
+  utils.request(`https://${params.server}?${toURL(options)}`, data => {
     console.log(data);
   });
 };

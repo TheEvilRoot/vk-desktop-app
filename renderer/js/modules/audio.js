@@ -15,7 +15,6 @@
 
 const { BrowserWindow } = require('electron').remote;
 const https = require('https');
-const { request } = utils;
 
 danyadev.audio = {};
 
@@ -598,7 +597,7 @@ var downloadAudio = id => {
       file_name = `${author} – ${name}.mp3`,
       file_path = `${utils.downloadsPath}/${file_name}`;
   
-  request(url, res => {
+  utils.request(url, res => {
     let body = Buffer.alloc(0);
 
     res.on('data', ch => body = Buffer.concat([body, ch]));

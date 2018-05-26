@@ -9,19 +9,11 @@
    github: https://github.com/danyadev/vk-desktop-app
 */
 
-.group_wrap {
-  padding: 10px;
-}
+.group_list { padding: 10px }
 
-.group_item {
-  background-color: white;
-  width: 100%;
-  max-width: 550px;
-  height: 80px;
-  padding: 5px;
-  box-shadow: 0 1px 0 0 #d7d8db, 0 0 0 1px #e3e4e8;
-  border-radius: 2px;
-  margin: 0 auto 10px auto;
+.group_list_err {
+  padding: 10px;
+  margin-top: -20px;
 }
 
 .group_img {
@@ -36,7 +28,6 @@
 
 .group_names {
   float: left;
-  padding-top: 2px;
   width: calc(100% - 92px);
 }
 
@@ -44,6 +35,8 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  display: inline-block;
+  max-width: -webkit-fill-available;
 }
 
 .group_name {
@@ -53,20 +46,4 @@
 
 .group_type, .group_subs {
   color: #656565;
-  padding-top: 4px;
-}
-
-.group_wrap_err {
-  padding: 0 10px;
-  margin-top: -10px;
-}
-
-.group_item_err {
-  max-width: 550px;
-  margin: 0 auto;
-  text-align: center;
-  background-color: white;
-  padding: 20px 0;
-  box-shadow: 0 1px 0 0 #d7d8db, 0 0 0 1px #e3e4e8;
-  border-radius: 2px;
 }

@@ -9,7 +9,8 @@
 */
 
 /* стили для блоков и шапки */
-.blue_theme .theme_block {
+.blue_theme .theme_block,
+.blue_theme .block {
   background-color: #222E3C;
   box-shadow: 0 0 0 1px #19222e;
 }

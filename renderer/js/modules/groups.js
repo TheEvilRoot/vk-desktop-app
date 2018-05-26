@@ -11,9 +11,7 @@
 
 'use strict';
 
-const { request, verifiedList } = utils;
-
-var group_wrap = qs('.group_wrap'),
+var group_list = qs('.group_list'),
     content = qs('.content');
 
 danyadev.groups = {};
@@ -21,14 +19,9 @@ danyadev.groups = {};
 danyadev.groups.count = 0;
 danyadev.groups.loaded = 0;
 danyadev.groups.list = [];
-danyadev.groups.verified = [];
 
 var load = () => {
-  verifiedList(list => {
-    danyadev.groups.verified = list[1];
-    
-    getAllGroups(0);
-  }, 'group_item_err');
+  utils.verifiedList(getAllGroups, 'group_item_err');
 }
 
 var pad = (n, tx) => {
@@ -44,6 +37,8 @@ var pad = (n, tx) => {
 }
 
 var getAllGroups = offset => {
+  offset = offset || 0;
+  
   vkapi.method('groups.get', {
     extended: true,
     fields: 'members_count,activity,verified',
@@ -57,10 +52,7 @@ var getAllGroups = offset => {
     } else {
       if(!data.response.count) {
         qs('.group_item_err').innerHTML = 'Вы не состоите ни в одной группе.'
-      } else {
-        qs('.group_wrap_err').style.display = 'none';
-        render();
-      }
+      } else render();
     }
   }, 'group_item_err');
 }
@@ -70,33 +62,34 @@ var render = () => {
       endID = danyadev.groups.loaded + 15;
 
   let renderItem = () => {
-    let group = danyadev.groups.list[danyadev.groups.loaded],
-        members = 'подписчик' + pad(group.members_count, ['', 'а', 'ов']),
-        name, verify = '';
+    let item = danyadev.groups.list[danyadev.groups.loaded],
+        members = 'подписчик' + pad(item.members_count, ['', 'а', 'ов']),
+        name, verify = '',
+        _v = utils.checkVerify(item.verified, item.id);
 
-    if(group.deactivated) {
+    if(item.deactivated) {
       name = '<div class="group_type">Сообщество заблокировано</div>';
-    } else if(!group.members_count) {
+    } else if(!item.members_count) {
       name = `
-        <div class="group_type">${group.activity}</div>
+        <div class="group_type">${item.activity}</div><br>
         <div class="group_subs">Сообщество заблокировано</div>
       `.trim();
     } else {
         name = `
-          <div class="group_type">${group.activity}</div>
-          <div class="group_subs">${group.members_count.toLocaleString('ru-RU')} ${members}</div>
+          <div class="group_type">${item.activity}</div><br>
+          <div class="group_subs">${item.members_count.toLocaleString('ru-RU')} ${members}</div>
       `.trim();
     }
 
-    if(group.verified || danyadev.groups.verified.includes(group.id)) {
-      verify = '<img class="img_verified" src="images/verify.png">';
+    if(_v[0]) {
+      verify = `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
     }
 
     block.innerHTML += `
-      <div class="group_item theme_block">
-        <img src="${group.photo_100}" class="group_img">
+      <div class="block mini">
+        <img src="${item.photo_100}" class="group_img">
         <div class="group_names">
-          <div class="group_name">${group.name} ${verify}</div>
+          <div class="group_name">${item.name} ${verify}</div><br>
           ${name}
         </div>
       </div>
@@ -107,9 +100,10 @@ var render = () => {
     if(danyadev.groups.list[danyadev.groups.loaded] && danyadev.groups.loaded < endID) {
       setTimeout(renderItem, 0);
     } else {
-      group_wrap.innerHTML += block.innerHTML;
+      group_list.innerHTML += block.innerHTML;
 
       if(danyadev.groups.loaded < danyadev.groups.count) loadGroupsBlock();
+      else qs('.group_list_err').remove();
     }
   }
 
@@ -117,9 +111,9 @@ var render = () => {
 }
 
 var renderNewItems = () => {
-  let h = window.screen.height > group_wrap.clientHeight,
-      l = group_wrap.clientHeight - window.outerHeight - 100 < content.scrollTop,
-      a = qs('.group_wrap').parentNode.classList.contains('content_active');
+  let h = window.screen.height > group_list.clientHeight,
+      l = group_list.clientHeight - window.outerHeight - 100 < content.scrollTop,
+      a = group_list.parentNode.classList.contains('content_active');
 
   if(a && (h || l)) {
     content.removeEventListener('scroll', renderNewItems);
@@ -130,8 +124,8 @@ var renderNewItems = () => {
 var loadGroupsBlock = () => {
   content.addEventListener('scroll', renderNewItems);
 
-  let h = window.screen.height > group_wrap.clientHeight,
-      l = group_wrap.clientHeight - window.outerHeight - 100 < content.scrollTop;
+  let h = window.screen.height > group_list.clientHeight,
+      l = group_list.clientHeight - window.outerHeight - 100 < content.scrollTop;
 
   if(h || l) renderNewItems();
 }

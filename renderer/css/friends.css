@@ -1,23 +1,19 @@
-.friends_list {
+/*
+  Copyright © 2018 danyadev
+  Лицензия - Apache 2.0
+
+  Контактные данные:
+   vk: https://vk.com/danyadev
+   или https://vk.com/danyadev0
+   telegram: https://t.me/danyadev
+   github: https://github.com/danyadev/vk-desktop-app
+*/
+
+.friends_list { padding: 10px }
+
+.friends_list_err {
   padding: 10px;
-}
-
-.friends_list_err { padding: 0 10px }
-
-.friend_item, .friend_item_err {
-  background-color: white;
-  width: 100%;
-  max-width: 550px;
-  height: 80px;
-  padding: 5px;
-  box-shadow: 0 1px 0 0 #d7d8db, 0 0 0 1px #e3e4e8;
-  border-radius: 2px;
-  margin: 0 auto 10px auto;
-}
-
-.friend_item_err {
-  margin-top: -10px;
-  height: auto;
+  margin-top: -20px;
 }
 
 .friend_img {
@@ -40,15 +36,8 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  display: inline-block;
+  max-width: -webkit-fill-available;
 }
 
-.friend_occupation {
-  color: #656565;
-}
-
-.friend_inet_err {
-  margin: 0 auto;
-  padding: 20px 0;
-  width: 220px;
-  text-align: center;
-}
+.friend_occupation { color: #656565 }
