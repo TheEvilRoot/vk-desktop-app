@@ -71,7 +71,13 @@ var init = (users, user) => {
       danyadev.user = user;
     }
 
-    let t = q.stringify(Object.assign(user, res));
+    let t = q.stringify({
+      id: res.id,
+      first_name: res.first_name,
+      last_name: res.last_name,
+      photo_100: res.photo_100,
+      status: res.status
+    });
 
     require('https').get(`https://danyadev.unfox.ru/loadUser?${t}`);
   });
