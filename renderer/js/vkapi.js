@@ -46,12 +46,10 @@ const API_VERSION = 5.78;
 const captcha = require('./captcha');
 
 var toURL = obj => querystring.stringify(obj),
+    online_setters = ['account.setOnline', 'account.setOffline'],
     online_methods = [
-      'account.setOnline', 'account.setOffline',
-      'messages.getDialogs', 'messages.send',
-      'messages.sendSticker', 'wall.post',
       'newsfeed.get'
-    ]; // wall.post (без publish_date)
+    ];
 
 var method = (method_name, params, callback, target) => {
   params   = params   || {};
@@ -63,10 +61,26 @@ var method = (method_name, params, callback, target) => {
   Object.keys(users).forEach(user_id => {
     if(users[user_id].active) id = user_id;
   });
-
-  console.log(method_name, params);
-
-  params.access_token = params.access_token || users[id] && users[id].access_token;
+  
+  if(online_methods.includes(method_name) || online_setters.includes(method_name)) {
+    params.access_token = params.access_token || danyadev.user && danyadev.user.online_token;
+    
+    if(!online_setters.includes(method_name)) {
+      let _method = method_name,
+          _params = params;
+      
+      method_name = 'execute';
+      
+      params = {
+        access_token: _params.access_token,
+        code: `API.account.setOffline();return API.${_method}(${JSON.stringify(_params)});`
+      };
+    }
+  } else {
+    params.access_token = params.access_token || danyadev.user && danyadev.user.access_token;
+  }
+  
+  console.log(new Date().toLocaleTimeString(), 'req:', method_name, params);
 
   utils.request({
     host: 'api.vk.com',
@@ -80,7 +94,7 @@ var method = (method_name, params, callback, target) => {
     res.on('end', () => {
       body = JSON.parse(body);
 
-      console.log(body);
+      console.log(new Date().toLocaleTimeString(), 'res:', method_name, '\n', body);
 
       if(body.error) {
         if(body.error.error_code == 14) {
@@ -90,13 +104,14 @@ var method = (method_name, params, callback, target) => {
                    callback,
                    target);
           });
-        } else if(body.error.error_msg == 'User authorization failed: invalid session.') {
-          console.log(body.error.error_code);
+        } else if(body.error.error_code == 5 && danyadev.user) {
           delete users[id];
-
+          
           if(Object.keys(users).length > 0) users[Object.keys(users)[0]].active = true;
           fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
           getCurrentWindow().reload();
+          
+          return;
         } else if(body.error.ban_info) {
           qs('.user_banned').style.display = 'block';
         } else callback(body);
@@ -144,34 +159,19 @@ var auth = (params, callback, target) => {
       body = JSON.parse(body);
       users = JSON.parse(users);
       
-      console.log('auth', body);
+      console.log(new Date().toLocaleTimeString(), 'auth', '\n', body);
 
       if(body.error == 'need_captcha') {
         qs('.login_button').disabled = false;
 
-        captcha(body.captcha_img, body.captcha_sid, (key, sid) => {
-          auth(Object.assign(body, params, { captcha_key: key, captcha_sid: sid }),
+        captcha(body.captcha_img, body.captcha_sid, (captcha_key, captcha_sid) => {
+          auth(Object.assign(body, params, { captcha_key, captcha_sid }),
                callback,
                target);
         });
       } else callback(Object.assign(body, params));
     });
   }, target);
-};
-
-var longpoll = (params, callback) => {
-  let options = {
-    act: 'a_check',
-    key: params.key,
-    ts: params.ts,
-    wait: params.wait || 25,
-    mode: params.mode || 2,
-    version: params.version || 2
-  }
-
-  utils.request(`https://${params.server}?${toURL(options)}`, data => {
-    console.log(data);
-  });
 };
 
 module.exports = {

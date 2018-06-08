@@ -89,7 +89,9 @@ var render = () => {
       <div class="block mini">
         <img src="${item.photo_100}" class="group_img">
         <div class="group_names">
-          <div class="group_name">${item.name} ${verify}</div><br>
+          <div class="group_name link" onclick="utils.openLink('https://vk.com/${item.screen_name}')">
+            ${item.name} ${verify}
+          </div><br>
           ${name}
         </div>
       </div>

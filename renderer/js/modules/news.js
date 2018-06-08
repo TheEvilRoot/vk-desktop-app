@@ -25,30 +25,29 @@ var load = () => {
 // all filters: post,photo,photo_tag,wall_photo,friend,note,audio,video
 
 var getNews = () => {
-  vkapi.method('execute.getNewsfeedSmart', {
+  if(start_from == undefined) {
+    qs('.news_list_err').style.display = '';
+    qs('.news_item_err').innerHTML = 'Показаны последние новости';
+
+    return;
+  }
+  
+  vkapi.method('newsfeed.get', {
     count: 15,
-    func_v: 5,
     start_from: start_from,
     filters: 'post,photo',
-    fields: 'id,verified,first_name,first_name_dat,first_name_acc,last_name,last_name_acc,last_name_gen,sex,screen_name,photo_50,photo_100,online,video_files'
-  }, data => {
-    if(start_from == undefined) {
-      qs('.news_list_err').style.display = '';
-      qs('.news_item_err').innerHTML = 'Показаны последние новости';
-
-      return;
-    }
-
+    fields: 'verified,sex,screen_name,photo_50,video_files'
+  }, data => {    
     start_from = data.response.next_from;
     
     for(let i = 0; i < data.response.items.length; i++) {
       let item = data.response.items[i],
-          verified = '', sign = '', head_data,
-          head_name, text = '', head_update = '',
+          head_data, parsed_time,
+          head_name, text = '',
+          isGroup = false,
           post_comments = { innerHTML: '' },
           time = new Date(item.date * 1000),
-          this_time = new Date,
-          parsed_time = '',
+          this_time = new Date, head_type = '',
           zero = time.getMinutes() < 10 ? '0' : '',
           mins = zero + time.getMinutes(),
           months = [
@@ -59,11 +58,11 @@ var getNews = () => {
       if(item.caption && item.caption.type == 'explorebait') continue;
 
       if(this_time.toLocaleDateString() == time.toLocaleDateString()) {
-        parsed_time += 'Сегодня';
+        parsed_time = 'Сегодня';
       } else if(this_time.getFullYear() == time.getFullYear()) {
-        parsed_time += `${time.getDate()} ${months[time.getMonth()]}`;
+        parsed_time = `${time.getDate()} ${months[time.getMonth()]}`;
       } else {
-        parsed_time += `${time.getDate()} ${months[time.getMonth()]} ${time.getFullYear()}`;
+        parsed_time = `${time.getDate()} ${months[time.getMonth()]} ${time.getFullYear()}`;
       }
 
       parsed_time += ` в ${time.getHours()}:${mins}`;
@@ -71,32 +70,31 @@ var getNews = () => {
       if(item.source_id.toString()[0] == '-') {
         item.source_id = Math.abs(item.source_id);
         
+        isGroup = true;
+        
         head_data = data.response.groups.find(el => el.id == item.source_id);
         head_name = head_data.name;
-        
-        let _v = utils.checkVerify(head_data.verified, head_data.id);
-
-        if(_v[0]) {
-          verified = `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
-        }
       } else {
         head_data = data.response.profiles.find(el => el.id == item.source_id);
         head_name = `${head_data.first_name} ${head_data.last_name}`;
-        
-        let _v = utils.checkVerify(head_data.verified, head_data.id);
+      }
+      
+      let _v = utils.checkVerify(head_data.verified, head_data.id),
+          sex = head_data.sex == 1 ? 'a' : '';
 
-        if(_v[0]) {
-          verified = `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
-        }
+      if(_v[0]) {
+        head_name += `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
       }
 
       if(item.type == 'post') {
-        text = item.text;
+        text += item.text;
         
-        text = text.replace(/\[(\w+)\|([^[]+)\]/g,
-                            '<div class="link" onclick="utils.openLink(\'https://vk.com/$1\')">$2</div>')
-                   .replace(/([-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)/gi,
-                           '<div class="link" onclick="utils.openLink(\'$1\')">$1</div>');
+        text = text.replace(/([-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)/gi,
+                           '<div class="link" onclick="utils.openLink(\'$1\')">$1</div>')
+                   .replace(/\[(\w+)\|([^[]+)\]/g,
+                           '<div class="link" onclick="utils.openLink(\'https://vk.com/$1\')">$2</div>')
+                   .replace(/#([^# \n]+)/g,
+                           '<div class="link" onclick="utils.openLink(\'https://vk.com/feed?section=search&q=$1\')">#$1</div>');
 
         if(item.copy_history) {
           if(text) text += '\n';
@@ -105,23 +103,15 @@ var getNews = () => {
         }
 
         if(item.post_source.data == 'profile_photo') {
-          head_update = ` <span class='post_time'>
-                        обновил${head_data.sex == 1 ? 'a' : ''}
-                        фотографию на странице:</span>`;
-        }
-
-        if(item.final_post && !text) {
-          head_update = ` <span class='post_time'>
-                        молча удалил${head_data.sex == 1 ? 'a' : ''}
-                        свою страницу.</span>`;
+          head_type = ` <span class='post_type'>обновил${sex} фотографию на странице</span>`;
+        } else if(item.final_post && !text) {
+          head_type = ` <span class='post_time'>молча удалил${sex} свою страницу</span>`;
         } else if(item.final_post) {
-          head_update = ` <span class='post_time'>
-                        удалил${head_data.sex == 1 ? 'a' : ''}
-                        свою страницу со словами:</span>`;
+          head_type = ` <span class='post_time'>удалил${sex} свою страницу со словами</span>`;
         }
 
         if(item.attachments) {
-          if(text) text += '\n';
+          if(text) text += '\n\n';
 
           for(let j = 0; j < item.attachments.length; j++) {
             let attach = item.attachments[j];
@@ -134,6 +124,8 @@ var getNews = () => {
             } else if(attach.type == 'article') {
               text += '*Статья*';
             } else if(attach.type == 'poll') {
+              console.log(attach.poll);
+              
               text += '*Голосование*';
             } else if(attach.type == 'video') {
               text += '*Видеозапись*';
@@ -145,6 +137,8 @@ var getNews = () => {
               text += '*Заметка*';
             } else if(attach.type == 'audio_playlist') {
               text += '*Плейлист*';
+            } else if(attach.type == 'album') {
+              text += '*Фотоальбом*';
             } else {
               text += `Неизвестный тип прикрепления.\n
                 Скиньте текст ниже <div class='link' onclick='utils.openLink("https://vk.com/danyadev")'>разработчику</div>:\n
@@ -156,26 +150,40 @@ var getNews = () => {
           }
         }
       } else if(item.type == 'photo') {
-        head_update = ` <span class='post_time'>
-                      добавил${head_data.sex == 1 ? 'a' : ''}
-                      новую фотографию</span>`;
+        let l = item.photos.items.length == 1 ? 'новую фотографию' : 'новые фотографии';
+        
+        head_type = ` <span class='post_type'>добавил${sex} ${l}</span>`;
 
         for(let j=0; j<item.photos.items.length; j++) {
-          let photo = item.photos.items[j];
-
-          text += `<img src="${photo.photo_604}" class="post_img">`;
+          let photo = item.photos.items[j],
+              ph = photo.sizes.find(s => s.type == 'x');
+          
+          text += `<img src="${ph.url}" class="post_img">`;
         }
       }
 
       if(emoji.isEmoji(text)) text = emoji.replace(text);
+      
+      text = text.replace(/\n/g, '<br>');
+      
+      if(item.geo) {
+        let l = `https://maps.yandex.ru/?text=${item.geo.coordinates.replace(/ /, ',')}`;
+        
+        text += `
+        <br><div class="post_geo link" onclick="utils.openLink('${l}')">${item.geo.place.title}</div>
+        `.trim();
+      }
 
       if(item.signer_id) {
         let signer = data.response.profiles.find(el => el.id == item.signer_id);
 
-        sign = `<br><div class='post_signer'>${signer.first_name} ${signer.last_name}</div>`;
+        text += `
+        <br>
+        <div class='post_signer link' onclick="utils.openLink('https://vk.com/${signer.screen_name}')">
+          ${signer.first_name} ${signer.last_name}
+        </div>
+        `.trim();
       }
-                          
-      text = text.replace(/\n/g, '<br>');
       
       let post_bottom = '';
       
@@ -217,7 +225,7 @@ var getNews = () => {
         
         post_bottom = `
           <div class="post_bottom">
-            <div class="post_like">
+            <div class="post_like" onclick="m('news').like(${isGroup ? -head_data.id : head_data.id}, ${item.post_id}, this)">
               <img class="post_like_img ${like_act_img}">
               <div class="post_like_count ${like_act_cnt}">${likes}</div>
             </div>
@@ -242,15 +250,20 @@ var getNews = () => {
           <div class='post_header'>
             <img src="${head_data.photo_50}" class="post_header_img">
             <div class="post_names">
-              <div class="post_name">${head_name} ${verified} ${head_update}</div>
+              <div class="post_name link" onclick="utils.openLink('https://vk.com/${head_data.screen_name}')">
+                ${head_name}
+              </div>
+              ${head_type}<br>
               <div class="post_time">${parsed_time}</div>
             </div>
           </div>
-          <div class="post_content">${text} ${sign}</div>
+          <div class="post_content">${text}</div>
           ${post_bottom}
         </div>
       `.trim();
     }
+    
+    if(!start_from) getNews();
 
     loadNewNews();
   }, 'news_item_err');
@@ -288,11 +301,34 @@ var renderNewItems = () => {
 //     else text += ', ';
 //   })
 
-var like = (oid, iid) => {
-  vkapi.method('likes.add', {
-    type: 'post',
-    owner_id: oid,
-    item_id: iid
+var like = (oid, iid, target) => {
+  if(!oid || !utils.isNumber(oid) || !iid || !utils.isNumber(iid)) return;
+  
+  vkapi.method('execute', {
+    code: `
+      var liked = API.likes.isLiked({ type: "post", item_id: ${iid}, owner_id: ${oid} }).liked,
+          count = 0;
+      
+      if(liked) {
+        count = API.likes.delete({ type: "post", item_id: ${iid}, owner_id: ${oid} });
+      } else {
+        count = API.likes.add({ type: "post", item_id: ${iid}, owner_id: ${oid} });
+      }
+      
+      return { count: count.likes, remove: liked };
+    `
+  }, data => {
+    if(target) {
+      if(data.response.remove) {
+        target.children[0].classList.remove('post_btn_act_i');
+        target.children[1].classList.remove('post_btn_act_c');
+      } else {
+        target.children[0].classList.add('post_btn_act_i');
+        target.children[1].classList.add('post_btn_act_c');
+      }
+      
+      target.children[1].innerHTML = data.response.count || '';
+    }
   });
 }
 

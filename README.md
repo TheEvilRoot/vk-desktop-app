@@ -3,24 +3,18 @@
 
 У проекта есть [группа ВКонтакте](https://vk.com/vk_desktop_app) и в [Telegram](https://t.me/vkdesktop)  
 А также [беседа в Telegram](https://t.me/vkdesktopteam)
-## Возможности
-* Прослушка музыки без рекламы и ограничений
-* Просмотр новостей
+## Что уже реализовано
+* Авторизация: с поддержкой двухфакторки или по токену (только через токен андроида)
+* Прослушка музыки без рекламы и ограничений (не все функции)
+* Просмотр новостей (не все функции)
 * Просмотр списка друзей и групп
-* Смена темы (всего их 4 штуки)
+* Имеется несколько тем
 ## Сборка
-Для сборки должен быть установлен `electron-packager` для вашей платформы.
-### Windows
-1. Склонируйте репозиторий: `git clone https://github.com/danyadev/vk-desktop-app.git`
-2. В папке с репозиторием откройте командную строку
-3. Введите там `electron-packager ./vk-desktop-app/ "windows-*arch*" --platform win32 --arch *arch* --electronVersion 2.0.0`  
-где `*arch*` - `ia32` (32 бита) или `x64`
-### Linux
-1. Склонируйте репозиторий: `git clone https://github.com/danyadev/vk-desktop-app.git`
-2. В папке с репозиторием откройте консоль
-3. Введите там `electron-packager ./vk-desktop-app/ "linux-*arch*" --platform linux --arch *arch* --electronVersion 2.0.0`  
-где `*arch*` - `ia32` (32 бита) или `x64`
-### MacOS
-1. Склонируйте репозиторий: `git clone https://github.com/danyadev/vk-desktop-app.git`
-2. В папке с репозиторием откройте консоль
-3. Введите там `electron-packager ./vk-desktop-app/ "macos" --platform darwin --arch x64 --electronVersion 2.0.0`
+1. Установите NodeJS и git
+2. Установите `electron packager`: `npm i -g electron-packager`
+3. Склонируйте репозиторий: `git clone https://github.com/danyadev/vk-desktop-app.git`
+4. В папке с репозиторием (не внутри него) откройте консоль
+5. Введите `electron-packager ./vk-desktop-app/ --platform *platform* --arch *arch* --electronVersion 2.0.2`
+
+`*arch*` - `ia32` (32 бита) или `x64`,
+`*platform*` - `win32`, `linux` или `darwin`

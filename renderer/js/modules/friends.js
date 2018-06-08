@@ -21,6 +21,7 @@ var getFriends = () => {
   vkapi.method('execute.getFriendsAndLists', {
     func_v: 2,
     need_lists: true,
+    order: 'hints',
     fields: 'photo_100,online,online_app,bdate,domain,sex,verified,occupation'
   }, data => {
     danyadev.friends = {};
@@ -41,20 +42,33 @@ var renderFriends = () => {
   if(danyadev.friends.loaded == danyadev.friends.list.length) return;
   
   var renderItem = () => {
-    let verify = '',
-        item = danyadev.friends.list[danyadev.friends.loaded],
+    let item = danyadev.friends.list[danyadev.friends.loaded],
+        name = `${item.first_name} ${item.last_name}`,
+        occupation = '',
         _v = utils.checkVerify(item.verified, item.id);
     
     if(_v[0]) {
-      verify = `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
+      name += `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
+    }
+    
+    if(item.occupation) {
+      if(item.occupation.type == 'work') {
+        occupation = `
+          <div class='friend_occupation link' onclick="utils.openLink('https://vk.com/club${item.occupation.id}')">
+            ${item.occupation.name}
+          </div>
+        `.trim();
+      } else {
+        occupation = `<div class='friend_occupation'>${item.occupation.name}</div>`;
+      }
     }
 
     block.innerHTML += `
     <div class="block mini">
       <img src="${item.photo_100}" class="friend_img">
       <div class="friend_names">
-        <div class="friend_name">${item.first_name} ${item.last_name} ${verify}</div><br>
-        <div class="friend_occupation">${item.occupation && item.occupation.name || ''}</div>
+        <div class="friend_name link" onclick="utils.openLink('https://vk.com/${item.domain}')">${name}</div><br>
+        ${occupation}
       </div>
     </div>
     `.trim();

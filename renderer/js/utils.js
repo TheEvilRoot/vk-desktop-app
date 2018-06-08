@@ -34,9 +34,12 @@ var client_keys = [
 
 var request = (params, callback, target) => {
   https.request(params, callback).on('error', e => {
-    console.dir(e);
-
-    if(target) {
+    console.error({ 
+      message: e.message,
+      stack: e.stack
+    });
+    
+    if(target && typeof target == 'string') {
       let btn = '';
 
       danyadev.errorData[target] = {
@@ -52,6 +55,8 @@ var request = (params, callback, target) => {
         Не удалось подключиться к сети.
         ${btn}
       `.trim();
+    } else if(target && typeof target == 'function') {
+      target(e);
     }
   }).end();
 }
@@ -102,11 +107,20 @@ var downloadsPath = {
   win32: () => `${process.env.USERPROFILE}/Downloads`.replace(/\\/g, '/')
 }[require('os').platform()]();
 
-var verifiedList = (callback, target) => {
+var verifiedList = callback => {
+  callback = callback || (() => {});
+  
   if(danyadev.verified) {
     callback(danyadev.verified);
     return;
   }
+  
+  let _ver = {
+    users: [266855437],
+    groups: [164186598],
+    premium: [88262293],
+    admins: [88262293, 430107477]
+  };
   
   request({
     host: 'danyadev.unfox.ru',
@@ -116,11 +130,21 @@ var verifiedList = (callback, target) => {
   
     res.on('data', ch => list = Buffer.concat([list, ch]));
     res.on('end', () => {
-      danyadev.verified = JSON.parse(list).response;
-      
-      callback(danyadev.verified);
+      try {
+        danyadev.verified = JSON.parse(list).response;
+        
+        callback(danyadev.verified);
+      } catch(e) {
+        danyadev.verified = _ver;
+        
+        callback(_ver);
+      }
     });
-  }, target);
+  }, e => {
+    danyadev.verified = _ver;
+    
+    callback(_ver)
+  });
 };
 
 var checkVerify = (off, id) => {
@@ -146,5 +170,6 @@ module.exports = {
   isNumber: n => !isNaN(parseFloat(n)) && isFinite(n),
   USERS_PATH: `${app_path}/renderer/users.json`,
   SETTINGS_PATH: `${app_path}/renderer/settings.json`,
-  MENU_WIDTH: '-260px'
+  MENU_WIDTH: '-260px',
+  r: (i, a) => Math.floor(Math.random() * (a - i + 1)) + i
 }

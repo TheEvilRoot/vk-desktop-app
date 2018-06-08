@@ -12,7 +12,7 @@
 @import "themes/dark.css";
 @import "themes/twilight.css";
 
-@import "css/login.css";
+@import "css/auth.css";
 @import "css/ui.css";
 @import "css/audio.css";
 @import "css/settings.css";
@@ -20,6 +20,12 @@
 @import "css/groups.css";
 @import "css/friends.css";
 @import "css/notifications.css";
+@import "css/messages.css";
+
+@font-face {
+  font-family: 'SFCompactRoundedMedium';
+  src: url('css/SFCompactRoundedMedium.ttf');
+}
 
 * { box-sizing: border-box }
 

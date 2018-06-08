@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset='utf-8'>
-    <title>VK app</title>
+    <title>VK Desktop</title>
     <link rel='stylesheet' href='main.css'>
     <script src='main.js' defer></script>
   </head>
@@ -67,7 +67,16 @@
             </div>
           </div>
         </div>
-        <div class="tab_content">Сообщения</div>
+        <div class="tab_content">
+          <div class="messages_list">
+            <div class="block"></div>
+          </div>
+          <div class="messages_list_err">
+            <div class="block">
+              <div class="messages_item_err item_err">Загрузка...</div>
+            </div>
+          </div>
+        </div>
         <div class="tab_content">
           <div class="content_audio">
             <div class="center_audio">
@@ -170,7 +179,7 @@
                   </div>
                   <div class="settings_line">
                     <div class="settings_left_block">Старый пароль</div>
-                    <input type="text" class="settings_input old_password theme_bgc">
+                    <input type="text" class="settings_input old_password theme_bgc"><br>
                     <div class="settings_left_block">Новый пароль</div>
                     <input type="text" class="settings_input new_password theme_bgc">
                   </div>
@@ -213,36 +222,10 @@
             </div>
           </div>
         </div>
-        <div class="account_list_modal">
-          <div class="account_list">
-            <div class="account_header">Выберите аккаунт</div>
-            <div class="account_item">
-              <img src="https://pp.userapi.com/c846120/v846120121/1dbb2/wUF-s6BzQPA.jpg" class="account_image">
-              <div class="account_names">
-                <div class="account_name">Данил Рудковский</div>
-                <div class="account_login">nemov.danil@mail.ru</div>
-              </div>
-            </div>
-            <div class="account_item">
-              <img src="https://pp.userapi.com/c846120/v846120121/1dbb2/wUF-s6BzQPA.jpg" class="account_image">
-              <div class="account_names">
-                <div class="account_name">Данил Рудковский</div>
-                <div class="account_login">nemov.danil@mail.ru</div>
-              </div>
-            </div>
-            <div class="account_item">
-              <img src="https://pp.userapi.com/c846120/v846120121/1dbb2/wUF-s6BzQPA.jpg" class="account_image">
-              <div class="account_names">
-                <div class="account_name">Данил Рудковский</div>
-                <div class="account_login">nemov.danil@mail.ru</div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-    <div class="user_banned">
+    <!-- <div class="user_banned">
       <div class="user_banned_info">Ваша страница заблокирована</div>
-    </div>
+    </div> -->
   </body>
 </html>

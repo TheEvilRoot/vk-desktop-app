@@ -30,13 +30,17 @@
 }
 
 .post_names {
+  float: left;
   padding-top: 4px;
+  width: calc(100% - 60px);
 }
 
-.post_name, .post_time {
+.post_name, .post_time, .post_geo, .post_type {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  display: inline-block;
+  max-width: -webkit-fill-available;
 }
 
 .post_name {
@@ -46,12 +50,17 @@
 
 .post_time {
   color: #656565;
-  padding-top: 2px;
+  margin-top: -2px;
   font-weight: normal;
+}
+
+.post_type {
+  color: #656565;
 }
 
 .post_content {
   padding: 10px 10px 8px;
+  word-wrap: break-word;
 }
 
 .post_img {
@@ -71,6 +80,27 @@
   cursor: pointer;
 }
 
+.post_geo {
+  display: inline-block;
+  position: relative;
+  margin: 5px 0;
+  padding-left: 18px;
+  line-height: 15px;
+}
+
+.post_geo::before {
+  -webkit-mask-image: url('../images/place.png');
+  -webkit-mask-size: cover;
+  -webkit-mask-repeat: no-repeat;
+  background-color: #497bad;
+  display: inline-block;
+  height: 16px;
+  width: 14px;
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
 .post_bottom {
   margin: 0 10px;
   padding-top: 7px;
@@ -86,6 +116,7 @@
   height: 24px;
   -webkit-mask-size: cover;
   background-color: #bdbdbd;
+  transition: background-color .2s;
 }
 
 .post_like_count, .post_comment_count, .post_repost_count {
@@ -94,11 +125,13 @@
   padding-left: 5px;
   padding-top: 2px;
   font-weight: 500;
+  transition: color .2s;
 }
 
 .post_like {
   display: inline-block;
   cursor: pointer;
+  width: 100px;
 }
 
 .post_like_img {
@@ -108,7 +141,7 @@
 .post_comment {
   display: inline-block;
   cursor: pointer;
-  margin-left: 50px;
+  width: 100px;
 }
 
 .post_comment_img {
@@ -118,7 +151,7 @@
 .post_repost {
   display: inline-block;
   cursor: pointer;
-  margin-left: 50px;
+  width: 100px;
 }
 
 .post_repost_img {
@@ -152,5 +185,6 @@
   vertical-align: -3px;
   width: 16px;
   height: 16px;
-  background: url('https://vk.com/images/im_emoji.png') no-repeat;
 }
+
+._emoji { background: url('https://vk.com/images/im_emoji.png') no-repeat }

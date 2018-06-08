@@ -13,6 +13,7 @@
 .blue_theme .block {
   background-color: #222E3C;
   box-shadow: 0 0 0 1px #19222e;
+  color: #c2c2c2;
 }
 
 /* стили для фона */
@@ -124,4 +125,8 @@
 .blue_theme .audio_item_active,
 .blue_theme .option.active {
   background-color: #2a394a;
+}
+
+.blue_theme .account_login {
+  color: #86919e
 }

@@ -1,0 +1,58 @@
+/* 
+  Copyright © 2018 danyadev
+  Лицензия - Apache 2.0
+
+  Контактные данные:
+   vk: https://vk.com/danyadev
+   или https://vk.com/danyadev0
+   telegram: https://t.me/danyadev
+   github: https://github.com/danyadev/vk-desktop-app
+*/
+
+.messages_list {
+  padding: 10px;
+  display: none;
+}
+
+.messages_list_err { padding: 10px }
+
+.dialog:not(:last-child) {
+  border-bottom: 1px solid #ccc;
+  transition: border-color .3s;
+}
+
+.dialog {
+  word-wrap: break-word;
+  height: 70px;
+  /* max-width: -webkit-fill-available; */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dialog_photo {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  float: left;
+  margin: 10px 5px 5px;
+  line-height: 50px;
+  text-align: center;
+  user-select: none;
+  color: white;
+  font-size: 22px;
+  text-transform: uppercase;
+  font-family: SFCompactRoundedMedium;
+}
+
+.dialog_name {
+  margin-top: 10px;
+}
+
+.dialog_user {
+
+}
+
+.dialog_text {
+
+}

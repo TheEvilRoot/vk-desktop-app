@@ -24,6 +24,7 @@ const theme = require('./js/theme'); theme();
 const update = require('./js/update'); update();
 const settings_json = require('./settings.json');
 const vkapi = require('./js/vkapi');
+const m = n => require(`./js/modules/${n}`);
 
 var header = qs('.header'),
     content = qs('.content'),
@@ -62,20 +63,21 @@ content.children[settings_json.settings.def_tab].classList.add('content_active')
   });
 });
 
-menu.style.left = MENU_WIDTH; // первично скрываем панельку
+let close_menu = e => {
+  if(!e) menu.style.left = MENU_WIDTH;
+  else {
+    if(e.path.indexOf(qs('.menu')) == -1 && e.target != open_menu_icon) {
+      menu.style.left = MENU_WIDTH;
+      
+      document.body.removeEventListener('click', close_menu);
+    }
+  }
+}
 
-open_menu.addEventListener('click', () => { // открытие/зактытие панельки
-  if(menu.style.left == MENU_WIDTH) menu.style.left = '0px';
-  else menu.style.left = MENU_WIDTH;
-});
-
-content.addEventListener('click', () => { // скрытие панели при клике на контент
-  if(menu.style.left == '0px') menu.style.left = MENU_WIDTH;
-});
-
-header.addEventListener('click', e => { // скрытие панели при клике на шапку
-  if(e.target == open_menu_icon) return;
-  if(menu.style.left == '0px') menu.style.left = MENU_WIDTH;
+open_menu.addEventListener('click', () => {
+  menu.style.left = '0';
+  
+  document.body.addEventListener('click', close_menu);
 });
 
 account_icon.addEventListener('click', () => {
@@ -129,4 +131,4 @@ if(keys.length > 0 && keys.find(r => users[r].active == true)) {
       break;
     }
   }
-} else require('./js/auth');
+} else require('./js/auth').init();

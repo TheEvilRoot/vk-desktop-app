@@ -11,32 +11,30 @@
 
 'use strict';
 
-var j = (e, t, n) => {
-  for (let r = n || 0, i = (e || []).length; i > r; r++) if (e[r] == t) return r;
+var j = (e, t) => {
+  for(let r = 0; e.length > r; r++) if(e[r] == t) return r;
   
   return -1;
 }
 
-var inArray = (e, t) => {
-  return -1 != j(t, e);
-}
+var inArray = (e, t) => j(t, e) != -1;
 
 var imgEmoji = {
       'D83DDE15': 1, 'D83DDE1F': 1,
       'D83DDE2E': 1, 'D83DDE34': 1
     },
     cssEmoji = {
-      'D83DDE0A': [0, ':-)'       ], 'D83DDE03': [1, ':-D'  ], 'D83DDE09': [2, ';-)'  ],
-      'D83DDE06': [3, 'xD'        ], 'D83DDE1C': [4, ';-P'  ], 'D83DDE0B': [5, ':-p'  ],
-      'D83DDE0D': [6, '8-)'       ], 'D83DDE0E': [7, 'B-)'  ], 'D83DDE12': [8, ':-('  ],
-      'D83DDE0F': [9, ';-]'       ], 'D83DDE14': [10, '3('  ], 'D83DDE22': [11, ':\'('],
-      'D83DDE2D': [12, ':_('      ], 'D83DDE29': [13, ':((' ], 'D83DDE28': [14, ':o'  ],
-      'D83DDE10': [15, ':|'       ], 'D83DDE0C': [16, '3-)' ], 'D83DDE20': [17, '>('  ],
-      'D83DDE21': [18, '>(('      ], 'D83DDE07': [19, 'O:)' ], 'D83DDE30': [20, ';o'  ],
-      'D83DDE33': [21, '8|'       ], 'D83DDE32': [22, '8o'  ], 'D83DDE37': [23, ':X'  ],
-      'D83DDE1A': [24, ':-*'      ], 'D83DDE08': [25, '}:)' ], '2764'    : [26 , '<3' ],
-      'D83DDC4D': [27, ':like:'   ], 'D83DDC4C': [31, ':ok:'], '270C'    : [30, ':v:' ],
-      'D83DDC4E': [28, ':dislike:'], '261D'    : [29, ':up:']
+      'D83DDE0A': [0,  ':-)'      ], 'D83DDE03': [1,  ':-D'], 'D83DDE09': [2,  ';-)'],
+      '261D'    : [29, ':up:'     ], 'D83DDE1C': [4,  ';-P'], 'D83DDE0B': [5,  ':-p'],
+      'D83DDE0D': [6,  '8-)'      ], 'D83DDE0E': [7,  'B-)'], 'D83DDE12': [8,  ':-('],
+      'D83DDE0F': [9,  ';-]'      ], 'D83DDE14': [10, '3(' ], 'D83DDE1A': [24, ':-*'],
+      'D83DDE2D': [12, ':_('      ], 'D83DDE29': [13, ':(('], 'D83DDE28': [14, ':o' ],
+      'D83DDC4C': [31, ':ok:'     ], 'D83DDE0C': [16, '3-)'], 'D83DDE20': [17, '>(' ],
+      'D83DDE21': [18, '>(('      ], 'D83DDE07': [19, 'O:)'], 'D83DDE10': [15, ':|' ],
+      'D83DDE33': [21, '8|'       ], 'D83DDE32': [22, '8o' ], 'D83DDE37': [23, ':X' ],
+      'D83DDE22': [11, ':\'('     ], 'D83DDE06': [3,  'xD' ], '270C'    : [30, ':v:'],
+      'D83DDC4E': [28, ':dislike:'], 'D83DDE08': [25, '}:)'], '2764'    : [26, '<3' ],
+      'D83DDC4D': [27, ':like:'   ], 'D83DDE30': [20, ';o' ]
     },
     EMOJI_SPRITES_NUM = 3,
     emojiJoiners = ['2640', '2642', '200D', '200C'],
@@ -118,7 +116,7 @@ var getEmojiHTML = (code, symbol, enabled, is_tab) => {
   if(cssEmoji[code] != undefined) {
     let num = -cssEmoji[code][0] * 17;
     
-    return `<img src="https://vk.com/images/blank.gif" emoji="${code}" alt="${symbol}" class="emoji" style="background-position: 0px ${num}px;">`;
+    return `<img src="https://vk.com/images/blank.gif" emoji="${code}" alt="${symbol}" class="emoji _emoji" style="background-position: 0px ${num}px;">`;
   } else {
     if(!imgEmoji[code] && symbol && !enabled) {
       return symbol;

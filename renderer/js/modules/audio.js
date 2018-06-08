@@ -53,6 +53,25 @@ danyadev.audio.track_id = 0;
 
 var load = () => {
   vkapi.method('audio.get', null, data => {
+    if(data.error) {
+      qs('.audiolist_info').innerHTML = 'Обход блокировки аудио...';
+      
+      vkapi.method('auth.refreshToken', {
+        access_token: danyadev.user.access_token,
+        receipt: 'JSv5FBbXbY:APA91bF2K9B0eh61f2WaTZvm62GOHon3-vElmVq54ZOL5PHpFkIc85WQUxUH_wae8YEUKkEzLCcUC5V4bTWNNPbjTxgZRvQ-PLONDMZWo_6hwiqhlMM7gIZHM2K2KhvX-9oCcyD1ERw4'
+      }, ref => {
+        danyadev.user.access_token = ref.response.token;
+        
+        fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+        
+        load();
+      });
+      
+      return;
+    }
+    
+    qs('.audiolist_info').innerHTML = 'Загрузка аудиозаписей...';
+    
     danyadev.audio.count = data.response.count;
     danyadev.audio.list = data.response.items;
 

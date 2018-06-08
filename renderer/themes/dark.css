@@ -13,6 +13,7 @@
 .dark_theme .block {
   background-color: #333336;
   box-shadow: 0 0 0 1px #282828;
+  color: #bbb;
 }
 
 /* стили для фона */
