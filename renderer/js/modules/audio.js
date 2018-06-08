@@ -62,6 +62,8 @@ var load = () => {
       }, ref => {
         danyadev.user.access_token = ref.response.token;
         
+        users[danyadev.user.id] = danyadev.user;
+        
         fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
         
         load();
