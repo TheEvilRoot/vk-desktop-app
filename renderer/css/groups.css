@@ -22,8 +22,6 @@
   border-radius: 50%;
   float: left;
   margin-right: 12px;
-  -webkit-user-drag: none;
-  user-select: none;
 }
 
 .group_names {

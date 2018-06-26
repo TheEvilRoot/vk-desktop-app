@@ -33,20 +33,18 @@ var audio = qs('.audio'),
     player_volume_wrap = qs('.player_volume_wrap'),
     player_volume_this = qs('.player_volume_this'),
     player_icon_repeat = qs('.player_icon_repeat'),
-    player_icon_recoms = qs('.player_icon_recoms '),
-    settings_json = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf-8'));
+    player_icon_recoms = qs('.player_icon_recoms');
 
 audio._play = audio.play;
 
 audio.play = () => audio._play().catch(err => {
-  if(err.message != "The play() request was interrupted by a new load request. https://goo.gl/LdLk22" &&
-     err.message != "The play() request was interrupted by a call to pause(). https://goo.gl/LdLk22") {
+  if(!err.message.match(/https:\/\/goo\.gl\/LdLk22/)) {
     console.error(err);
   }
 });
 
-player_volume_this.style.width = settings_json.audio.volume * 100 + '%';
-audio.volume = settings_json.audio.volume;
+player_volume_this.style.width = settings.volume * 100 + '%';
+audio.volume = settings.volume;
 
 danyadev.audio.renderedItems = 0;
 danyadev.audio.track_id = 0;
@@ -62,9 +60,10 @@ var load = () => {
       }, ref => {
         danyadev.user.access_token = ref.response.token;
         
-        users[danyadev.user.id] = danyadev.user;
+        let userIndex = users.list.indexOf(danyadev.user);
         
-        fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+        users.list[userIndex] = danyadev.user;
+        users.save();
         
         load();
       });

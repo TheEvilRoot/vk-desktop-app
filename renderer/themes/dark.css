@@ -42,7 +42,7 @@
   color: #919191;
 }
 
-.dark_theme .input,
+.dark_theme .custom_input,
 .dark_theme .settings_input { border: 1px solid #282828 }
 
 .dark_theme .settings_line:not(:last-child) {

@@ -25,8 +25,6 @@
   border-radius: 50%;
   float: left;
   margin-right: 10px;
-  -webkit-user-drag: none;
-  user-select: none;
 }
 
 .post_names {
@@ -66,7 +64,6 @@
 .post_img {
   max-width: 100%;
   max-height: 300px;
-  -webkit-user-drag: none;
 }
 
 .post_signer {

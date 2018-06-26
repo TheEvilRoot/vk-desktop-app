@@ -12,8 +12,9 @@
 @import "themes/dark.css";
 @import "themes/twilight.css";
 
-@import "css/auth.css";
 @import "css/ui.css";
+@import "css/modal.css";
+@import "css/auth.css";
 @import "css/audio.css";
 @import "css/settings.css";
 @import "css/news.css";
@@ -30,8 +31,7 @@
 * { box-sizing: border-box }
 
 body {
-  font-family: '-apple-system', 'BlinkMacSystemFont', 'Roboto',
-               'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
+  font-family: '-apple-system', 'BlinkMacSystemFont', 'Roboto', 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
   font-size: 14px;
   margin: 0;
   overflow: hidden;

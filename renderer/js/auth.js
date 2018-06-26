@@ -11,8 +11,6 @@
 
 'use strict';
 
-const captcha = require('./captcha');
-
 var init = () => {
   var wrapper_login = document.createElement('div');
   wrapper_login.classList.add('wrapper_login');
@@ -22,19 +20,19 @@ var init = () => {
     <img class="login_logo" src="images/logo.jpg">
     <div class="login_title">VK Desktop</div>
     <div class="input_form">
-      <input type="text" placeholder="Введите логин" class='login_input' autofocus>
+      <input type="text" placeholder="Введите логин" class='input login_input' autofocus>
       <div class="password_input">
         <div class="show_password"></div>
-        <input type="password" placeholder="Введите пароль">
+        <input type="password" class="input" placeholder="Введите пароль">
       </div>
-      <input type="text" placeholder="Введите код из смс" class='sms_code_input' style='display: none'>
+      <input type="text" placeholder="Введите код из смс" class='input sms_code_input' style='display: none'>
       <div class="twofa_info"></div>
-      <input type="button" value="Отмена" class='login_cancel' style='display: none'>
-      <input type="button" value="Войти" class='login_button' disabled>
+      <input type="button" value="Отмена" class='button login_cancel' style='display: none'>
+      <input type="button" value="Войти" class='button login_button' disabled>
     </div>
-    <div class="error_info" style='color: red;'></div>
+    <div class="error_info"></div>
     <div class="bottom_info">
-      <div class='link token_auth' onclick='require("./js/auth").toggleModal()'>Войти через access_token</div>
+      <div class='link token_auth' onclick='modal.authToken.toggle()'>Войти через access_token</div>
     </div>
   `.trim();
   
@@ -66,7 +64,7 @@ var init = () => {
   }
   
   login_input.oninput = password_input.oninput = sms_code.oninput = () => {
-    if(login_input.value.trim() != '' && password_input.value.trim() != ''
+    if(login_input.value.trim() && password_input.value.trim()
     && !(sms_code.style.display == 'block' && !sms_code.value.trim())) {
       login_button.disabled = false;
     } else login_button.disabled = true;
@@ -74,6 +72,8 @@ var init = () => {
   
   login_button.addEventListener('click', () => {
     login_button.disabled = true;
+    error_info.innerHTML = '';
+    qs('.wrapper_login').style.marginTop = '';
     auth();
   });
   
@@ -81,16 +81,17 @@ var init = () => {
     qs('.login_cancel').style.display = 'none';
     qs('.login_button').style.display = 'block';
     qs('.login_button').style.width = '250px';
+    qs('.wrapper_login').style.marginTop = '';
     
     sms_code.style.display = 'none';
     twofa_info.innerHTML = '';
-    
-    login_button.disabled = true;
-    login_input.disabled = false;
-    password_input.disabled = false;
-    
     login_input.value = '';
     password_input.value = '';
+    error_info.innerHTML = '';
+    
+    login_button.disabled = false;
+    login_input.disabled = false;
+    password_input.disabled = false;
   });
   
   var auth = params => {
@@ -101,40 +102,34 @@ var init = () => {
       code: sms_code.value
     }, data => {
       if(data.error && !data.access_token) {
-        if(data.error_description == 'Username or password is incorrect') {
+        if(data.error == 'invalid_client' || data.error == 'invalid_request') {
           login_button.disabled = false;
-          
-          error_info.innerHTML = 'Неверный логин или пароль';
-        }
-        
-        if(data.error == 'need_validation') {
+          qs('.wrapper_login').style.marginTop = '10px';
+          error_info.innerHTML = data.error_description;
+        } else if(data.error == 'need_validation') {
           sms_code.style.display = 'block';
           sms_code.focus();
-          
+      
           error_info.innerHTML = '';
           twofa_info.innerHTML = `Смс придет на номер ${data.phone_mask}`;
-          
+      
           qs('.login_cancel').style.display = 'inline-block';
           qs('.login_button').style.display = 'inline-block';
           qs('.login_button').style.width = '123px';
           qs('.login_cancel').style.width = '123px';
-          
+          qs('.wrapper_login').style.marginTop = '10px';
+      
           login_input.disabled = true;
           password_input.disabled = true;
         }
-        
-        if(data.error_description == 'code is invalid') {
-          login_button.disabled = false;
-          
-          error_info.innerHTML = 'Неверный код';
-        }
-        
+      
         return;
       }
       
       qs('.login_cancel').style.display = 'none';
       qs('.login_button').style.display = 'block';
       qs('.login_button').style.width = '250px';
+      qs('.wrapper_login').style.marginTop = '';
       
       error_info.innerHTML = '';
       twofa_info.innerHTML = '';
@@ -143,9 +138,7 @@ var init = () => {
         access_token: data.access_token,
         fields: 'status,photo_100'
       }, user_info => {
-        let users = JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8')) || {};
-        
-        users[data.user_id] = {
+        let user = {
           active: true,
           id: data.user_id,
           platform: data.platform,
@@ -158,115 +151,61 @@ var init = () => {
           access_token: data.access_token,
           online_token: data.access_token
         };
-    
-        console.log(new Date().toLocaleTimeString(), users[data.user_id]);
-    
-        fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-        
+      
+        console.log(new Date().toLocaleTimeString(), user);
+      
         wrapper_login.remove();
         wrapper_content.style.display = 'block';
-        
-        require('./init')(users, users[data.user_id]);
+      
+        users.list.push(user);
+        users.save();
+      
+        require('./init')(user);
       }, 'error_info');
     }, 'error_info');
   }
 }
 
-let auth_token_modal = document.createElement('div');
-auth_token_modal.classList.add('auth_token_modal');
-
-auth_token_modal.innerHTML = `
-  <div class="auth_token">
-    <div class="at_header">Авторизация по токену</div>
-    <div class="at_text">Для такой авторизации есть ограничение - токен должен быть получен через приложение для Android (его id 2274003)</div>
-    <input type="text" class="at_input" placeholder="Введите access_token">
-    <input type="button" value="Отмена" class="at_btn at_cancel">
-    <input type="button" value="Войти" class="at_btn at_login" disabled>
-    <div class="at_error"></div>
-  </div>
-`.trim();
-
-document.body.appendChild(auth_token_modal);
-
-qs('.at_cancel').addEventListener('click', () => {
-  toggleModal();
-});
-
-qs('.at_input').addEventListener('input', e => {
-  let text = e.target.value;
-  
-  if(text.length == 85 && text.match(/[A-z0-9]{75}/)) {
-    qs('.at_login').disabled = false;
-  } else qs('.at_login').disabled = true;
-});
-
-qs('.at_login').addEventListener('click', () => {
-  qs('.at_error').innerHTML = '';
-  qs('.at_login').disabled = true;
-  
-  authByToken(qs('.at_input').value);
-});
-
-var toggleModal = e => {
-  if(auth_token_modal.classList.contains('almv')) {
-    if(!e || e.path.indexOf(qs('.auth_token')) == -1 && e.target != qs('.token_auth')) {
-        document.body.removeEventListener('click', toggleModal);
-        
-        auth_token_modal.classList.remove('almv');
-      }
-  } else {
-    auth_token_modal.classList.add('almv');
-    
-    document.body.addEventListener('click', toggleModal);
-  }
-}
-
 var authByToken = token => {
-  vkapi.method('execute', {
+  vkapi.method('users.get', {
     access_token: token,
-    code: `
-      return {
-        t: API.execute.getNewsfeedSmart(),
-        u: API.users.get({ fields: "status,photo_100" })
-      };
-    `
+    fields: 'status,photo_100'
   }, data => {
     if(data.error) {
       if(data.error.error_code == 5) {
         qs('.at_error').innerHTML = 'Неверный access_token';
-      } else if(data.error.error_code == 13) {
-        qs('.at_error').innerHTML = 'Токен не с Android';
+      } else {
+        qs('.at_error').innerHTML = 'Неизвестная ошибка';
       }
       
       qs('.at_login').disabled = false;
-      
       return;
     }
     
-    let users = JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8')) || {},
-        user_info = data.response.u[0];
-    
-    users[user_info.id] = {
+    let user = {
       active: true,
-      id: user_info.id,
+      id: data.response[0].id,
       platform: 0,
-      first_name: user_info.first_name,
-      last_name: user_info.last_name,
-      photo_100: user_info.photo_100,
-      status: user_info.status,
+      first_name: data.response[0].first_name,
+      last_name: data.response[0].last_name,
+      photo_100: data.response[0].photo_100,
+      status: data.response[0].status,
       access_token: token,
       online_token: token
     };
-
-    console.log(new Date().toLocaleTimeString(), users[data.user_id]);
-
-    fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+    
+    users.list.push(user);
+    users.save();
     
     qs('.wrapper_login').remove();
     qs('.wrapper_content').style.display = 'block';
     
-    require('./init')(users, users[data.user_id]);
+    modal.authToken.toggle();
+    require('./init')(user);
   });
 }
 
-module.exports = { init, toggleModal };
+module.exports = {
+  init,
+  authByToken
+}

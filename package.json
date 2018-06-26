@@ -3,7 +3,7 @@
   "name": "vk-desktop-app",
   "version": "0.5.5",
   "build": 2,
-  "description": "Клиент ВКонтакте для Windows и Linux",
+  "description": "Клиент ВКонтакте для Windows, Mac и Linux",
   "author": "danyadev",
   "license": "Apache 2.0",
   "repository": {
@@ -13,5 +13,8 @@
   "bugs": {
     "url": "https://github.com/danyadev/vk-desktop-app/issues"
   },
-  "homepage": "https://github.com/danyadev/vk-desktop-app#readme"
+  "homepage": "https://github.com/danyadev/vk-desktop-app#readme",
+  "devDependencies": {
+    "electron-reload": "^1.2.3"
+  }
 }

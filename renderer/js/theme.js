@@ -11,8 +11,6 @@
 
 'use strict';
 
-var settings = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf8')).settings;
-
 module.exports = type => {
   let attrs = [].slice.call(qs('body').classList);
   

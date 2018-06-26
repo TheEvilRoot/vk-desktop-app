@@ -14,17 +14,28 @@
 window.ELECTRON_DISABLE_SECURITY_WARNINGS = true;
 
 const { getCurrentWindow } = require('electron').remote;
-const fs = require('fs');
 const danyadev = {};
+const MENU_WIDTH = '-260px';
 const qs = e => document.querySelector(e);
 const qsa = e => document.querySelectorAll(e);
 const utils = require('./js/utils');
-const { USERS_PATH, SETTINGS_PATH, MENU_WIDTH } = utils;
-const theme = require('./js/theme'); theme();
-const update = require('./js/update'); update();
-const settings_json = require('./settings.json');
+const modal = require('./js/modal');
 const vkapi = require('./js/vkapi');
-const m = n => require(`./js/modules/${n}`);
+const theme = require('./js/theme');
+const update = require('./js/update');
+const users = JSON.parse(localStorage.getItem('users') || `{"list":[]}`);
+const settings = JSON.parse(localStorage.getItem('settings') || JSON.stringify({
+  window: getCurrentWindow().getBounds(),
+  volume: 1,
+  def_tab: 0,
+  theme: 'white'
+}));
+
+users.save = () => localStorage.setItem('users', JSON.stringify(users));
+settings.save = () => localStorage.setItem('settings', JSON.stringify(settings));
+
+theme();
+update();
 
 var header = qs('.header'),
     content = qs('.content'),
@@ -36,16 +47,13 @@ var header = qs('.header'),
     settings_item = qs('.settings_item');
 
 window.addEventListener('beforeunload', () => {
-  let settings_json_new = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf-8'));
-
-  settings_json_new.window = getCurrentWindow().getBounds();
-  settings_json_new.audio.volume = qs('.audio').volume;
-
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json_new, null, 2));
+  settings.window = getCurrentWindow().getBounds();
+  settings.volume = qs('.audio').volume;
+  settings.save();
 });
 
-menu.children[settings_json.settings.def_tab].classList.add('menu_item_active');
-content.children[settings_json.settings.def_tab].classList.add('content_active');
+menu.children[settings.def_tab].classList.add('menu_item_active');
+content.children[settings.def_tab].classList.add('content_active');
 
 [].slice.call(menu.children).forEach(item => {
   item.addEventListener('click', function() {
@@ -63,7 +71,7 @@ content.children[settings_json.settings.def_tab].classList.add('content_active')
   });
 });
 
-let close_menu = e => {
+var close_menu = e => {
   if(!e) menu.style.left = MENU_WIDTH;
   else {
     if(e.path.indexOf(qs('.menu')) == -1 && e.target != open_menu_icon) {
@@ -75,13 +83,13 @@ let close_menu = e => {
 }
 
 open_menu.addEventListener('click', () => {
-  menu.style.left = '0';
+  menu.style.left = 0;
   
   document.body.addEventListener('click', close_menu);
 });
 
 account_icon.addEventListener('click', () => {
-  menu.style.left = MENU_WIDTH;
+  close_menu();
 
   qs('.menu_item_active').classList.remove('menu_item_active');
   qs('.content_active').classList.remove('content_active');
@@ -99,36 +107,16 @@ settings_item.addEventListener('contextmenu', () => {
     {
       label: 'Открыть DevTools',
       click: () => {
-        if(getCurrentWindow().isDevToolsOpened()) getCurrentWindow().closeDevTools();
-        else getCurrentWindow().openDevTools();
-
-        menu.style.left = MENU_WIDTH;
+        getCurrentWindow().toggleDevTools();
+        close_menu();
       }
     }
   ]);
 });
 
-if(!fs.existsSync(USERS_PATH)) fs.writeFileSync(USERS_PATH, '{}');
+danyadev.user = users.list.find(u => u.active == true);
 
-var users = fs.readFileSync(USERS_PATH, 'utf-8');
-
-if(users.trim() == '') {
-  users = {};
-
-  fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
-} else users = JSON.parse(users);
-
-var keys = Object.keys(users);
-
-if(keys.length > 0 && keys.find(r => users[r].active == true)) {
+if(danyadev.user) {
   wrapper_content.style.display = 'block';
-
-  for(let i=0; i<keys.length; i++) {
-    let key = keys[i];
-
-    if(users[key].active) {
-      require('./js/init')(users, users[key]);
-      break;
-    }
-  }
+  require('./js/init')(danyadev.user);
 } else require('./js/auth').init();

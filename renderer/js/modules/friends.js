@@ -18,11 +18,9 @@ var load = () => {
 }
 
 var getFriends = () => {
-  vkapi.method('execute.getFriendsAndLists', {
-    func_v: 2,
-    need_lists: true,
+  vkapi.method('friends.get', {
     order: 'hints',
-    fields: 'photo_100,online,online_app,bdate,domain,sex,verified,occupation'
+    fields: 'photo_100,domain,sex,verified,occupation'
   }, data => {
     danyadev.friends = {};
     

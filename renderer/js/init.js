@@ -18,7 +18,7 @@ var acc_status = qs('.menu_acc_status'),
     full_name = qs('.menu_acc_name'),
     menu = qs('.menu');
 
-var init = (users, user) => {
+var init = user => {
   acc_status.innerHTML = user.status;
   account_icon.style.backgroundImage = menu_account_bgc.style.backgroundImage = `url('${user.photo_100}')`;
   full_name.innerHTML = `${user.first_name} ${user.last_name}`;
@@ -31,10 +31,13 @@ var init = (users, user) => {
         'notifications', 'friends',
         'groups', 'photos',
         'videos', 'settings'
-      ], def_item = settings_json.settings.def_tab;
+      ], def_item = settings.def_tab;
 
   require(`./modules/${items[def_item]}`).load(user);
-  require('./account').init();
+  
+  qs('.menu_multiacc').addEventListener('click', () => {
+    modal.account.toggle();
+  });
 
   for(let i=0; i<items.length; i++) {
     let item;

@@ -29,13 +29,13 @@ var mkdirP = p => {
   }
 };
 
-var getGithubFiles = (user, repo, removeList, callback) => {
-  let fileList = [], allFiles = [], dirCount = 0, dirs = 0;
+var getGithubFiles = (user, callback) => {
+  let fileList = [], dirCount = 0, dirs = 0;
 
   let sendReq = path => {
     utils.request({
       host: 'api.github.com',
-      path: `/repos/${user}/${repo}/contents/${path}?client_id=2cca2222a6f211d96eb5&client_secret=7ca0d642c52d3c5c4d793782993da8691152a8f3`,
+      path: `/repos/danyadev/vk-desktop-app/contents/${path}?client_id=2cca2222a6f211d96eb5&client_secret=7ca0d642c52d3c5c4d793782993da8691152a8f3`,
       headers: { 'User-Agent': 'vk.com/danyadev' }
     }, res => {
       let body = '';
@@ -46,7 +46,7 @@ var getGithubFiles = (user, repo, removeList, callback) => {
 
         dirs++;
 
-        for(let i = 0; i<data.length; i++) {
+        for(let i = 0; i < data.length; i++) {
           if(data[i].type == 'dir') {
             sendReq(`${path}/${data[i].name}`);
           } else {
@@ -58,16 +58,7 @@ var getGithubFiles = (user, repo, removeList, callback) => {
               if(file.type == 'dir') dirCount++;
             });
 
-            if(dirs > dirCount) {
-              allFiles = allFiles.concat(fileList);
-
-              removeList.forEach((file, i) => {
-                let index = fileList.indexOf(file);
-
-                if(index != -1) fileList.splice(index, 1);
-                if(i == removeList.length-1) callback(fileList, allFiles);
-              });
-            }
+            if(dirs > dirCount) callback(fileList);
           }
         }
       });
@@ -107,37 +98,33 @@ var update = () => {
     res.on('end', () => {
       let loc_package = require(`${app_path}/package.json`),
           ext_package = JSON.parse(body),
-          v0 = ext_package.version.split('.'),
-          v1 = loc_package.version.split('.'),
+          v0 = ext_package.version.split('.'), // новая
+          v1 = loc_package.version.split('.'), // старая
           newVer = v0[0] > v1[0] || v0[1] > v1[1] || v0[2] > v1[2],
+          thisVer = v0[0] == v1[0] || v0[1] == v1[1] || v0[2] == v1[2],
           newBuild = ext_package.build > loc_package.build;
-
-      if(utils.update && newVer || newBuild) {
-        let noUpdate = [
-          `${app_path}/renderer/settings.json`,
-          `${app_path}/renderer/users.json`
-        ];
-
-        getGithubFiles('danyadev', 'vk-desktop-app', noUpdate, (files, allFiles) => {
+      
+      if(newVer || (thisVer && newBuild)) {
+        getGithubFiles(files => {
           getLocalFiles(localFiles => {
             let deleteFiles = localFiles.filter(file => !allFiles.includes(file));
-
+      
             deleteFiles.forEach(file => fs.unlinkSync(file));
           });
-
+      
           files.forEach((filename, i) => {
             let githubFile = filename.replace(app_path, '');
-
+      
             if(!fs.existsSync(filename)) {
               mkdirP(filename.replace(/[A-z]+\.[A-z]+/, ''));
             }
-
+      
             utils.request({
               host: 'raw.githubusercontent.com',
               path: `/danyadev/vk-desktop-app/master${encodeURIComponent(githubFile)}`
             }, res => {
               let body = Buffer.alloc(0);
-
+      
               res.on('data', ch => body = Buffer.concat([body, ch]));
               res.on('end', () => {
                 fs.writeFile(filename, body, () => {

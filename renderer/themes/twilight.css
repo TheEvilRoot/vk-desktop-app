@@ -42,7 +42,7 @@
   color: #919191;
 }
 
-.twilight_theme .input,
+.twilight_theme .custom_input,
 .twilight_theme .settings_input { border: 1px solid #222629 }
 
 .twilight_theme .settings_line:not(:last-child) {

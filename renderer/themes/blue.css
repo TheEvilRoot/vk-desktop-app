@@ -42,7 +42,7 @@
   color: #919191;
 }
 
-.blue_theme .input,
+.blue_theme .custom_input,
 .blue_theme .settings_input { border: 1px solid #19222e }
 
 .blue_theme .settings_line:not(:last-child) {

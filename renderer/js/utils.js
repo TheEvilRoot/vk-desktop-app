@@ -13,6 +13,7 @@
 
 const { Menu, getCurrentWindow, shell } = require('electron').remote;
 const https = require('https');
+const fs = require('fs');
 
 danyadev.errorData = {};
 
@@ -34,11 +35,6 @@ var client_keys = [
 
 var request = (params, callback, target) => {
   https.request(params, callback).on('error', e => {
-    console.error({ 
-      message: e.message,
-      stack: e.stack
-    });
-    
     if(target && typeof target == 'string') {
       let btn = '';
 
@@ -51,7 +47,7 @@ var request = (params, callback, target) => {
       if(target == 'error_info') qs('.login_button').disabled = false;
       else btn = `<div class="no_inet_btn theme_bgc" onclick='utils.err_click("${target}")'>Повторить попытку</div>`;
 
-      qs('.' + target).innerHTML = `
+      qs(`.${target}`).innerHTML = `
         Не удалось подключиться к сети.
         ${btn}
       `.trim();
@@ -77,24 +73,16 @@ var app_path = (() => {
   return process.argv[5].replace(/--app-path=/, '').replace(/\\/g, '/');
 })();
 
-var update = (() => {
-  try {
-    return require(`${app_path}/dev.json`).update;
-  } catch(e) {
-    return true;
-  }
-})();
-
 var unix = () => {
   let homeDownloads = `${process.env.HOME}/Downloads`;
   
   try {
     return require('child_process').execSync('xdg-user-dir DOWNLOAD', { stdio: [0, 3, 3] });
-  } catch (e) { }
+  } catch(e) {}
   
   try {
     if(fs.statSync(homeDownloads)) return homeDownloads;
-  } catch (e) { }
+  } catch(e) {}
 
   return '/tmp/';
 }
@@ -110,17 +98,17 @@ var downloadsPath = {
 var verifiedList = callback => {
   callback = callback || (() => {});
   
-  if(danyadev.verified) {
-    callback(danyadev.verified);
-    return;
-  }
-  
   let _ver = {
     users: [266855437],
-    groups: [164186598],
+    groups: [-164186598],
     premium: [88262293],
     admins: [88262293, 430107477]
   };
+  
+  if(danyadev.verified && danyadev.verified != _ver) {
+    callback(danyadev.verified);
+    return;
+  }
   
   request({
     host: 'danyadev.unfox.ru',
@@ -143,7 +131,7 @@ var verifiedList = callback => {
   }, e => {
     danyadev.verified = _ver;
     
-    callback(_ver)
+    callback(_ver);
   });
 };
 
@@ -162,14 +150,29 @@ var checkVerify = (off, id) => {
   return [verified, type];
 }
 
+var req = url => {
+  return new Promise((resolve, reject) => {
+    let req = https.request(url, res => {
+      if(res.statusCode < 200 || res.statusCode > 299) {
+        reject(new Error('Failed to load page, status code: ' + res.statusCode));
+      }
+
+      let data = Buffer.alloc(0);
+
+      res.on('data', ch => body = Buffer.concat([body, ch]));
+      res.on('end', () => resolve((body || '').toString()));
+    });
+
+    req.on('error', err => reject(err));
+    req.end();
+  });
+}
+
 module.exports = {
   app_path, request, client_keys, verifiedList,
-  err_click, update, downloadsPath, checkVerify,
+  err_click, downloadsPath, checkVerify, req,
   openLink: url => shell.openExternal(url),
   showContextMenu: t => Menu.buildFromTemplate(t).popup(getCurrentWindow()),
   isNumber: n => !isNaN(parseFloat(n)) && isFinite(n),
-  USERS_PATH: `${app_path}/renderer/users.json`,
-  SETTINGS_PATH: `${app_path}/renderer/settings.json`,
-  MENU_WIDTH: '-260px',
   r: (i, a) => Math.floor(Math.random() * (a - i + 1)) + i
 }

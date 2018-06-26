@@ -42,40 +42,20 @@ const https = require('https');
 const fs = require('fs');
 const querystring = require('querystring');
 const { getCurrentWindow } = require('electron').remote;
-const API_VERSION = 5.78;
-const captcha = require('./captcha');
+const API_VERSION = '5.80';
 
-var toURL = obj => querystring.stringify(obj),
-    online_setters = ['account.setOnline', 'account.setOffline'],
-    online_methods = [
-      'newsfeed.get'
-    ];
+var toURL = obj => querystring.stringify(obj);
 
 var method = (method_name, params, callback, target) => {
-  params   = params   || {};
+  params = params || {};
   callback = callback || (() => {});
   params.v = params.v || API_VERSION;
 
-  let id, users = JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8'));
-
-  Object.keys(users).forEach(user_id => {
-    if(users[user_id].active) id = user_id;
-  });
+  let user = users.list.find(u => u.active == true),
+      id = user ? user.id : null;
   
-  if(online_methods.includes(method_name) || online_setters.includes(method_name)) {
+  if(params.online) {
     params.access_token = params.access_token || danyadev.user && danyadev.user.online_token;
-    
-    if(!online_setters.includes(method_name)) {
-      let _method = method_name,
-          _params = params;
-      
-      method_name = 'execute';
-      
-      params = {
-        access_token: _params.access_token,
-        code: `API.account.setOffline();return API.${_method}(${JSON.stringify(_params)});`
-      };
-    }
   } else {
     params.access_token = params.access_token || danyadev.user && danyadev.user.access_token;
   }
@@ -98,7 +78,7 @@ var method = (method_name, params, callback, target) => {
 
       if(body.error) {
         if(body.error.error_code == 14) {
-          captcha(body.error.captcha_img, body.error.captcha_sid, (key, sid) => {
+          modal.captcha(body.error.captcha_img, body.error.captcha_sid, (key, sid) => {
             method(method_name,
                    Object.assign(params, { captcha_key: key, captcha_sid: sid }),
                    callback,
@@ -121,9 +101,7 @@ var method = (method_name, params, callback, target) => {
 }
 
 var auth = (params, callback, target) => {
-  let users = fs.readFileSync(USERS_PATH, 'utf-8');
-
-  params.login = params.login.replace('+', '');
+  params.login = params.login.replace(/\+/, '');
   params.platform = params.platform || 0;
   callback = callback || (() => {});
 
@@ -147,7 +125,7 @@ var auth = (params, callback, target) => {
   }
 
   if(params.code) reqData.code = params.code;
-
+  
   utils.request({
     host: 'oauth.vk.com',
     path: `/token/?${toURL(reqData)}`
@@ -157,19 +135,27 @@ var auth = (params, callback, target) => {
     res.on('data', ch => body = Buffer.concat([body, ch]));
     res.on('end', () => {
       body = JSON.parse(body);
-      users = JSON.parse(users);
       
       console.log(new Date().toLocaleTimeString(), 'auth', '\n', body);
 
       if(body.error == 'need_captcha') {
         qs('.login_button').disabled = false;
-
-        captcha(body.captcha_img, body.captcha_sid, (captcha_key, captcha_sid) => {
-          auth(Object.assign(body, params, { captcha_key, captcha_sid }),
-               callback,
-               target);
+        
+        modal.captcha(body.captcha_img, body.captcha_sid, (captcha_key, captcha_sid) => {
+          auth(Object.assign({
+            login: params.login,
+            password: params.password,
+            platform: params.platform,
+            code: params.code,
+            captcha_sid, captcha_key
+          }, body), callback, target);
         });
-      } else callback(Object.assign(body, params));
+      } else callback(Object.assign({
+        login: params.login,
+        password: params.password,
+        platform: params.platform,
+        code: params.code
+      }, body));
     });
   }, target);
 };

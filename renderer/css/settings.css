@@ -17,17 +17,11 @@
   transition: background-color .3s;
 }
 
-.settings_content_block {
-  min-width: 410px;
-  max-width: calc(100vw - 200px);
-}
-
 .settings_tabs {
   width: 150px;
   background-color: white;
   padding: 5px 0;
-  position: fixed;
-  right: 0;
+  float: right;
   margin-right: 15px;
   border-radius: 5px;
   box-shadow: 0 1px 0 0 #d7d8db, 0 0 0 1px #e3e4e8;
@@ -49,6 +43,11 @@
 
 .settings_tab_active {
   border-left: 2px solid #5181b8;
+}
+
+.settings_content_block {
+  min-width: 410px;
+  max-width: calc(100vw - 200px);
 }
 
 .settings_block {
@@ -151,7 +150,7 @@
   top: -5px;
 }
 
-.input {
+.custom_input {
   display: inline-block;
   border: 1px solid #d2d8de;
   border-radius: 3px;
@@ -163,14 +162,14 @@
   cursor: text;
 }
 
-.input_prefix {
+.custom_input_prefix {
   font-size: 13px;
   color: #828282;
   display: inline;
   user-select: none;
 }
 
-.input_input {
+.custom_input_input {
   width: 100px;
   outline: none;
   border: none;

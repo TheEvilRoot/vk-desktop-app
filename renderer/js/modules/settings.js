@@ -79,14 +79,16 @@ var load = () => {
 
 settings_main.style.display = 'none';
 
-vkapi.method('execute.getAccountSettings', null, data => {
+vkapi.method('account.getProfileInfo', null, data => {
   settings_main.style.display = '';
   qs('.settings_block_err').style.display = 'none';
 
-  qs('.settings_nick').value = data.response.domain;
+  qs('.settings_nick').value = data.response.screen_name;
 }, 'settings_main_err');
 
-qs('.input').addEventListener('click', () => qs('.input_input').focus());
+qs('.custom_input').addEventListener('click', () => {
+  qs('.custom_input_input').focus()
+});
 
 qs('.logout').addEventListener('click', () => {
   dialog.showMessageBox({
@@ -98,19 +100,12 @@ qs('.logout').addEventListener('click', () => {
     noLink: true
   }, btn => {
     if(!btn) {
-      settings_json.settings.theme = 'white';
-      settings_json.settings.def_tab = 0;
-
-      let users_json = JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8'));
-
-      delete users_json[danyadev.user.id];
-
-      let keys = Object.keys(users_json);
-
-      if(keys.length) users_json[keys[0]].active = true;
-
-      fs.writeFileSync(USERS_PATH, JSON.stringify(users_json, null, 2));
-      fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
+      settings.theme = 'white';
+      settings.def_tab = 0;
+      settings.save();
+      
+      users.list.splice(users.list.indexOf(danyadev.user), 1);
+      users.save();
 
       getCurrentWindow().reload();
     }
@@ -121,26 +116,25 @@ qs('.logout').addEventListener('click', () => {
 
 initSelect('.change_theme', (sel, list, selected) => {
   let optionBlock = '',
-      themeList = fs.readdirSync(`${utils.app_path}/renderer/themes`)
-                    .map(item => item.replace(/\.css/, ''));
+      themeList = require('fs').readdirSync(`${utils.app_path}/renderer/themes`)
+                               .map(item => item.replace(/\.css/, ''));
 
   themeList.unshift('white');
 
-  let themeID = themeList.indexOf(settings_json.settings.theme);
+  let themeID = themeList.indexOf(settings.theme);
 
   for(let i=0; i<themeList.length; i++) {
     optionBlock += `<div class="option theme_block">${themeList[i]}</div>`
   }
 
   list.innerHTML = optionBlock;
-  selected.innerHTML = settings_json.settings.theme;
+  selected.innerHTML = settings.theme;
 
   list.children[themeID].classList.add('active');
 }, event => {
-  settings_json.settings.theme = event.target.innerHTML;
-
+  settings.theme = event.target.innerHTML;
+  settings.save();
   theme(event.target.innerHTML);
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
 });
 
 initSelect('.change_def_tab', (sel, list, selected) => {
@@ -150,8 +144,8 @@ initSelect('.change_def_tab', (sel, list, selected) => {
     'Уведомления', 'Друзья',
     'Группы', 'Фотографии',
     'Видеозаписи', 'Настройки'
-  ],  optionBlock = '',
-      defTabID = settings_json.settings.def_tab;
+  ], optionBlock = '',
+     defTabID = settings.def_tab;
 
   for(let i=0; i<menu_list.length; i++) {
     optionBlock += `<div class="option theme_block">${menu_list[i]}</div>`
@@ -162,9 +156,8 @@ initSelect('.change_def_tab', (sel, list, selected) => {
 
   list.children[defTabID].classList.add('active');
 }, (event, list) => {
-  settings_json.settings.def_tab = [].slice.call(list.children).indexOf(event.target);
-
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
+  settings.def_tab = [].slice.call(list.children).indexOf(event.target);
+  settings.save();
 });
 
 module.exports = {

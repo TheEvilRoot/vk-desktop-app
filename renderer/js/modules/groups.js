@@ -65,7 +65,7 @@ var render = () => {
     let item = danyadev.groups.list[danyadev.groups.loaded],
         members = 'подписчик' + pad(item.members_count, ['', 'а', 'ов']),
         name, verify = '',
-        _v = utils.checkVerify(item.verified, item.id);
+        _v = utils.checkVerify(item.verified, -item.id);
 
     if(item.deactivated) {
       name = '<div class="group_type">Сообщество заблокировано</div>';
@@ -114,7 +114,7 @@ var render = () => {
 
 var renderNewItems = () => {
   let h = window.screen.height > group_list.clientHeight,
-      l = group_list.clientHeight - window.outerHeight - 100 < content.scrollTop,
+      l = group_list.clientHeight - window.outerHeight < content.scrollTop,
       a = group_list.parentNode.classList.contains('content_active');
 
   if(a && (h || l)) {
