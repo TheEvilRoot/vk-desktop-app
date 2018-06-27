@@ -79,11 +79,11 @@ var load = () => {
 
 settings_main.style.display = 'none';
 
-vkapi.method('account.getProfileInfo', null, data => {
+vkapi.method('account.getProfileInfo', null).then(data => {
   settings_main.style.display = '';
   qs('.settings_block_err').style.display = 'none';
 
-  qs('.settings_nick').value = data.response.screen_name;
+  qs('.settings_nick').value = data.response.screen_name || danyadev.user.id;
 }, 'settings_main_err');
 
 qs('.custom_input').addEventListener('click', () => {

@@ -58,7 +58,7 @@ var init = user => {
       u: API.users.get({ fields: "status,photo_100,verified" }),
       a: API.messages.allowMessagesFromGroup({ group_id: 164186598, key: "VK_Desktop" })
     };`.trim().replace(/\n/g, '')
-  }, data => {
+  }).then(data => {
     let res = data.response.u[0];
     
     require('./modules/messages').updateLongPoll(data.response.m);

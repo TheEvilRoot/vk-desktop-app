@@ -50,14 +50,15 @@ danyadev.audio.renderedItems = 0;
 danyadev.audio.track_id = 0;
 
 var load = () => {
-  vkapi.method('audio.get', null, data => {
+  vkapi.method('audio.get', null, 'audiolist_info')
+  .then(data => {
     if(data.error) {
       qs('.audiolist_info').innerHTML = 'Обход блокировки аудио...';
       
       vkapi.method('auth.refreshToken', {
         access_token: danyadev.user.access_token,
         receipt: 'JSv5FBbXbY:APA91bF2K9B0eh61f2WaTZvm62GOHon3-vElmVq54ZOL5PHpFkIc85WQUxUH_wae8YEUKkEzLCcUC5V4bTWNNPbjTxgZRvQ-PLONDMZWo_6hwiqhlMM7gIZHM2K2KhvX-9oCcyD1ERw4'
-      }, ref => {
+      }, 'audiolist_info').then(ref => {
         danyadev.user.access_token = ref.response.token;
         
         let userIndex = users.list.indexOf(danyadev.user);
@@ -79,7 +80,7 @@ var load = () => {
     if(!danyadev.audio.list.length) {
       qs('.audiolist_info').innerHTML = 'Список аудиозаписей пуст';
     } else render();
-  }, 'audiolist_info');
+  });
 }
 
 var render = cb => {

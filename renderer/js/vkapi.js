@@ -46,9 +46,8 @@ const API_VERSION = '5.80';
 
 var toURL = obj => querystring.stringify(obj);
 
-var method = (method_name, params, callback, target) => {
+var method = (method_name, params, target, _resolve) => {
   params = params || {};
-  callback = callback || (() => {});
   params.v = params.v || API_VERSION;
 
   let user = users.list.find(u => u.active == true),
@@ -61,17 +60,14 @@ var method = (method_name, params, callback, target) => {
   }
   
   console.log(new Date().toLocaleTimeString(), 'req:', method_name, params);
-
-  utils.request({
-    host: 'api.vk.com',
-    path: `/method/${method_name}?${toURL(params)}`,
-    method: 'GET',
-    headers: { 'User-Agent': 'VKAndroidApp/4.13.1-1206' }
-  }, res => {
-    let body = Buffer.alloc(0);
-
-    res.on('data', ch => body = Buffer.concat([body, ch]));
-    res.on('end', () => {
+  
+  return new Promise((resolve, reject) => {
+    utils.request({
+      host: 'api.vk.com',
+      path: `/method/${method_name}?${toURL(params)}`,
+      method: 'GET',
+      headers: { 'User-Agent': 'VKAndroidApp/4.13.1-1206' }
+    }, target).then(body => {
       body = JSON.parse(body);
 
       console.log(new Date().toLocaleTimeString(), 'res:', method_name, '\n', body);
@@ -81,29 +77,26 @@ var method = (method_name, params, callback, target) => {
           modal.captcha(body.error.captcha_img, body.error.captcha_sid, (key, sid) => {
             method(method_name,
                    Object.assign(params, { captcha_key: key, captcha_sid: sid }),
-                   callback,
-                   target);
+                   target,
+                   resolve);
           });
         } else if(body.error.error_code == 5 && danyadev.user) {
-          delete users[id];
+          users.list.splice(users.list.indexOf(danyadev.user), 1);
+          users.save();
           
-          if(Object.keys(users).length > 0) users[Object.keys(users)[0]].active = true;
-          fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
           getCurrentWindow().reload();
-          
           return;
         } else if(body.error.ban_info) {
-          qs('.user_banned').style.display = 'block';
-        } else callback(body);
-      } else callback(body);
+          // TODO
+        } else _resolve ? _resolve(body) : resolve(body);
+      } else _resolve ? _resolve(body) : resolve(body);
     });
-  }, target);
+  });
 }
 
-var auth = (params, callback, target) => {
+var auth = (params, target, _resolve) => {
   params.login = params.login.replace(/\+/, '');
   params.platform = params.platform || 0;
-  callback = callback || (() => {});
 
   let client = utils.client_keys[params.platform];
 
@@ -126,14 +119,13 @@ var auth = (params, callback, target) => {
 
   if(params.code) reqData.code = params.code;
   
-  utils.request({
-    host: 'oauth.vk.com',
-    path: `/token/?${toURL(reqData)}`
-  }, res => {
-    let body = Buffer.alloc(0);
-
-    res.on('data', ch => body = Buffer.concat([body, ch]));
-    res.on('end', () => {
+  return new Promise((resolve, reject) => {
+    resolve = _resolve ? _resolve : resolve;
+    
+    utils.request({
+      host: 'oauth.vk.com',
+      path: `/token/?${toURL(reqData)}`
+    }, target).then(body => {
       body = JSON.parse(body);
       
       console.log(new Date().toLocaleTimeString(), 'auth', '\n', body);
@@ -148,16 +140,16 @@ var auth = (params, callback, target) => {
             platform: params.platform,
             code: params.code,
             captcha_sid, captcha_key
-          }, body), callback, target);
+          }, body), target, resolve);
         });
-      } else callback(Object.assign({
+      } else resolve(Object.assign({
         login: params.login,
         password: params.password,
         platform: params.platform,
         code: params.code
       }, body));
     });
-  }, target);
+  });
 };
 
 module.exports = {

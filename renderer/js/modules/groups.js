@@ -21,7 +21,8 @@ danyadev.groups.loaded = 0;
 danyadev.groups.list = [];
 
 var load = () => {
-  utils.verifiedList(getAllGroups, 'group_item_err');
+  utils.verifiedList('group_item_err')
+    .then(() => getAllGroups());
 }
 
 var pad = (n, tx) => {
@@ -43,7 +44,7 @@ var getAllGroups = offset => {
     extended: true,
     fields: 'members_count,activity,verified',
     offset: offset
-  }, data => {
+  }, 'group_item_err').then(data => {
     danyadev.groups.count = data.response.count;
     danyadev.groups.list = danyadev.groups.list.concat(data.response.items);
 
@@ -54,7 +55,7 @@ var getAllGroups = offset => {
         qs('.group_item_err').innerHTML = 'Вы не состоите ни в одной группе.'
       } else render();
     }
-  }, 'group_item_err');
+  });
 }
 
 var render = () => {

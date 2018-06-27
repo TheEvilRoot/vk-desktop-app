@@ -18,7 +18,8 @@ var news_list = qs('.news_list'),
     start_from = '';
 
 var load = () => {
-  utils.verifiedList(getNews, 'news_item_err');
+  utils.verifiedList('news_item_err')
+    .then(() => getNews());
 }
 
 // ads filters: friends_recomm,ads_app,ads_site,ads_post,ads_app_slider
@@ -37,7 +38,7 @@ var getNews = () => {
     start_from: start_from,
     filters: 'post,photo',
     fields: 'verified,sex,screen_name,photo_50,video_files'
-  }, data => {    
+  }, 'news_item_err').then(data => {    
     start_from = data.response.next_from;
     
     for(let i = 0; i < data.response.items.length; i++) {
@@ -268,7 +269,7 @@ var getNews = () => {
     if(!start_from) getNews();
 
     loadNewNews();
-  }, 'news_item_err');
+  });
 }
 
 var loadNewNews = () => {
@@ -306,7 +307,7 @@ var like = (oid, iid, target) => {
       
       return { count: count.likes, remove: liked };
     `
-  }, data => {
+  }).then(data => {
     if(target) {
       if(data.response.remove) {
         target.children[0].classList.remove('post_btn_act_i');

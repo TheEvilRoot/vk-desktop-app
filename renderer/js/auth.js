@@ -100,7 +100,7 @@ var init = () => {
       password: password_input.value,
       platform: 0,
       code: sms_code.value
-    }, data => {
+    }, 'error_info').then(data => {
       if(data.error && !data.access_token) {
         if(data.error == 'invalid_client' || data.error == 'invalid_request') {
           login_button.disabled = false;
@@ -137,7 +137,7 @@ var init = () => {
       vkapi.method('users.get', {
         access_token: data.access_token,
         fields: 'status,photo_100'
-      }, user_info => {
+      }, 'error_info').then(user_info => {
         let user = {
           active: true,
           id: data.user_id,
@@ -161,8 +161,8 @@ var init = () => {
         users.save();
       
         require('./init')(user);
-      }, 'error_info');
-    }, 'error_info');
+      });
+    });
   }
 }
 

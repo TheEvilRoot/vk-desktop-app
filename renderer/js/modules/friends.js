@@ -14,14 +14,15 @@
 var friends_list = qs('.friends_list');
 
 var load = () => {
-  utils.verifiedList(getFriends, 'friend_item_err');
+  utils.verifiedList('friend_item_err')
+    .then(() => getFriends());
 }
 
 var getFriends = () => {
   vkapi.method('friends.get', {
     order: 'hints',
     fields: 'photo_100,domain,sex,verified,occupation'
-  }, data => {
+  }, 'friend_item_err').then(data => {
     danyadev.friends = {};
     
     danyadev.friends.list = data.response.items;
@@ -30,7 +31,7 @@ var getFriends = () => {
     if(!data.response.items.length) {
       qs('.friend_item_err').innerHTML = 'Список друзей пуст';
     } else renderFriends();
-  }, 'friend_item_err');
+  });
 }
 
 var renderFriends = () => {

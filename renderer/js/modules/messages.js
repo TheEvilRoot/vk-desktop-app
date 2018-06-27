@@ -22,7 +22,8 @@ var messages_list = qs('.messages_list'),
     offset = 0;
 
 var load = () => {
-  utils.verifiedList(getDialogs);
+  utils.verifiedList()
+    .then(() => getDialogs());
 }
 
 var getDialogs = () => {

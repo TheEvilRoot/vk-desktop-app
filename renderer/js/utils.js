@@ -33,36 +33,44 @@ var client_keys = [
   [3032107, 'NOmHf1JNKONiIG5zPJUu', 'Vika (Blackberry)' ]  // 11
 ];
 
-var request = (params, callback, target) => {
-  https.request(params, callback).on('error', e => {
-    if(target && typeof target == 'string') {
-      let btn = '';
+var request = (data, target) => {
+  return new Promise((resolve, reject) => {
+    let req = https.request(data, res => {
+      let body = Buffer.alloc(0);
 
-      danyadev.errorData[target] = {
-        defHTML: qs(`.${target}`).innerHTML,
-        params: params,
-        callback: callback
-      }
+      res.on('data', ch => body = Buffer.concat([body, ch]));
+      res.on('end', () => resolve((body || '').toString()));
+    });
 
-      if(target == 'error_info') qs('.login_button').disabled = false;
-      else btn = `<div class="no_inet_btn theme_bgc" onclick='utils.err_click("${target}")'>Повторить попытку</div>`;
-
-      qs(`.${target}`).innerHTML = `
-        Не удалось подключиться к сети.
-        ${btn}
-      `.trim();
-    } else if(target && typeof target == 'function') {
-      target(e);
-    }
-  }).end();
+    req.on('error', err => {
+      if(target) {
+        let btn = '';
+  
+        danyadev.errorData[target] = {
+          defHTML: qs(`.${target}`).innerHTML,
+          data: data,
+          resolve: resolve
+        };
+  
+        if(target == 'error_info') qs('.login_button').disabled = false;
+        else btn = `<div class="no_inet_btn theme_bgc" onclick='utils.err_click("${target}")'>Повторить попытку</div>`;
+  
+        qs(`.${target}`).innerHTML = `
+          Не удалось подключиться к сети.
+          ${btn}
+        `.trim();
+      } else reject(err);
+    });
+    req.end();
+  });
 }
 
-var err_click = (target) => {
+var err_click = target => {
   qs(`.${target}`).innerHTML = danyadev.errorData[target].defHTML;
 
   request(danyadev.errorData[target].params,
-          danyadev.errorData[target].callback,
-          target);
+          target,
+          danyadev.errorData[target].resolve);
 }
 
 var app_path = (() => {
@@ -95,9 +103,7 @@ var downloadsPath = {
   win32: () => `${process.env.USERPROFILE}/Downloads`.replace(/\\/g, '/')
 }[require('os').platform()]();
 
-var verifiedList = callback => {
-  callback = callback || (() => {});
-  
+var verifiedList = target => {
   let _ver = {
     users: [266855437],
     groups: [-164186598],
@@ -105,35 +111,30 @@ var verifiedList = callback => {
     admins: [88262293, 430107477]
   };
   
-  if(danyadev.verified && danyadev.verified != _ver) {
-    callback(danyadev.verified);
-    return;
-  }
-  
-  request({
-    host: 'danyadev.unfox.ru',
-    path: '/getLists'
-  }, res => {
-    let list = Buffer.alloc(0);
-  
-    res.on('data', ch => list = Buffer.concat([list, ch]));
-    res.on('end', () => {
+  return new Promise((resolve, reject) => {
+    if(danyadev.verified && danyadev.verified != _ver) {
+      resolve(danyadev.verified);
+      return;
+    }
+    
+    request({
+      host: 'danyadev.unfox.ru',
+      path: '/getLists'
+    }, target).then(body => {
       try {
-        danyadev.verified = JSON.parse(list).response;
+        danyadev.verified = JSON.parse(body).response;
         
-        callback(danyadev.verified);
+        resolve(danyadev.verified);
       } catch(e) {
         danyadev.verified = _ver;
-        
-        callback(_ver);
+        resolve(_ver);
       }
+    }).catch(e => {
+      danyadev.verified = _ver;
+      resolve(_ver);
     });
-  }, e => {
-    danyadev.verified = _ver;
-    
-    callback(_ver);
   });
-};
+}
 
 var checkVerify = (off, id) => {
   let verified = false,
@@ -150,27 +151,9 @@ var checkVerify = (off, id) => {
   return [verified, type];
 }
 
-var req = url => {
-  return new Promise((resolve, reject) => {
-    let req = https.request(url, res => {
-      if(res.statusCode < 200 || res.statusCode > 299) {
-        reject(new Error('Failed to load page, status code: ' + res.statusCode));
-      }
-
-      let data = Buffer.alloc(0);
-
-      res.on('data', ch => body = Buffer.concat([body, ch]));
-      res.on('end', () => resolve((body || '').toString()));
-    });
-
-    req.on('error', err => reject(err));
-    req.end();
-  });
-}
-
 module.exports = {
   app_path, request, client_keys, verifiedList,
-  err_click, downloadsPath, checkVerify, req,
+  err_click, downloadsPath, checkVerify,
   openLink: url => shell.openExternal(url),
   showContextMenu: t => Menu.buildFromTemplate(t).popup(getCurrentWindow()),
   isNumber: n => !isNaN(parseFloat(n)) && isFinite(n),

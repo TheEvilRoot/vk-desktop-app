@@ -14,7 +14,8 @@
 var nots_list = qs('.notifications_list');
 
 var load = () => {
-  utils.verifiedList(getNotifications, 'notifications_item_err');
+  utils.verifiedList('notifications_item_err')
+    .then(() => getNotifications());
 }
 
 var getNotifications = () => {

@@ -17,21 +17,19 @@ var load = () => {
   console.log('user loaded');
 }
 
-var getId = (name, callback) => {
-  callback = callback || (q => console.log(q));
-  
-  if(utils.isNumber(name) || !name) callback(name);
-  else {
-    vkapi.method('users.get', {
-      user_ids: name
-    }, data => {
-      if(data.error && data.error.error_code == 113) {
-        throw Error('Пользователя с таким ником нет');
-      } else {
-        callback(data.response[0].id);
-      }
-    });
-  }
+var getId = name => {
+  return new Promise((resolve, reject) => {
+    if(utils.isNumber(name) || !name) reject(new Error('Неверный ник'));
+    else {
+      vkapi.method('users.get', {
+        user_ids: name
+      }).then(data => {
+        if(data.error && data.error.error_code == 113) {
+          reject(new Error('Пользователя с таким ником нет'));
+        } else resolve(data.response[0].id);
+      });
+    }
+  });
 }
 
 module.exports = {
