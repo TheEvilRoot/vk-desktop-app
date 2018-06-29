@@ -83,11 +83,57 @@ vkapi.method('account.getProfileInfo', null).then(data => {
   settings_main.style.display = '';
   qs('.settings_block_err').style.display = 'none';
 
-  qs('.settings_nick').value = data.response.screen_name || danyadev.user.id;
+  qs('.settings_nick').value = data.response.screen_name || `id${danyadev.user.id}`;
+  
+  if(settings.update) qs('.check_updates').classList.add('on');
+  if(settings.update && settings.branch == 'dev') qs('.get_beta_versions').classList.add('on');
+  if(settings.notify_updates) qs('.notify_updates').classList.add('on');
 }, 'settings_main_err');
 
 qs('.custom_input').addEventListener('click', () => {
-  qs('.custom_input_input').focus()
+  qs('.custom_input_input').focus();
+});
+
+qs('.check_updates').addEventListener('click', () => {
+  if(qs('.check_updates').classList.contains('on')) {
+    settings.update = false;
+    qs('.get_beta_versions').classList.remove('on');
+  } else {
+    settings.update = true;
+    
+    if(settings.branch == 'dev') {
+      qs('.get_beta_versions').classList.add('on');
+    }
+  }
+  
+  settings.save();
+  qs('.check_updates').classList.toggle('on');
+});
+
+qs('.get_beta_versions').addEventListener('click', () => {
+  if(qs('.get_beta_versions').classList.contains('on')) {
+    settings.branch = 'master';
+  } else {
+    settings.branch = 'dev';
+    
+    if(!qs('.check_updates').classList.contains('on')) {
+      qs('.check_updates').classList.add('on');
+    }
+  }
+  
+  settings.save();
+  qs('.get_beta_versions').classList.toggle('on');
+});
+
+qs('.notify_updates').addEventListener('click', () => {
+  if(qs('.notify_updates').classList.contains('on')) {
+    settings.notify_updates = false;
+  } else {
+    settings.notify_updates = true;
+  }
+  
+  settings.save();
+  qs('.notify_updates').classList.toggle('on');
 });
 
 qs('.logout').addEventListener('click', () => {

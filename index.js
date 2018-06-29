@@ -27,6 +27,8 @@ try {
 
 const { app, BrowserWindow } = require('electron');
 
+app.commandLine.appendSwitch('disable-mojo-local-storage');
+
 app.on('window-all-closed', () => {
   if(process.platform != 'darwin') app.quit();
 });

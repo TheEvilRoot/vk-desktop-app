@@ -103,6 +103,46 @@ img {
   overflow-x: hidden;
 }
 
+.menu_item {
+  height: 44px;
+  padding-top: 10px;
+  transition: background-color .3s;
+  cursor: pointer;
+  background-color: white;
+}
+
+.menu_item_active { transition: background-color .3s }
+
+.menu_item:hover, .menu_item_active:not(.menu_account_item) {
+  background-color: #ebeced;
+}
+
+.menu_icon {
+  width: 24px;
+  height: 22px;
+  margin-left: 10px;
+  background-color: #a6a6a6;
+  -webkit-mask-size: cover;
+}
+
+.menu_news_icon     { -webkit-mask-image: url('../images/menu_news.png')          }
+.menu_mess_icon     { -webkit-mask-image: url('../images/menu_messages.png')      }
+.menu_music_icon    { -webkit-mask-image: url('../images/menu_music.png')         }
+.menu_notify_icon   { -webkit-mask-image: url('../images/menu_notifications.png') }
+.menu_friends_icon  { -webkit-mask-image: url('../images/menu_friends.png')       }
+.menu_groups_icon   { -webkit-mask-image: url('../images/menu_groups.png')        }
+.menu_photos_icon   { -webkit-mask-image: url('../images/menu_photos.png')        }
+.menu_videos_icon   { -webkit-mask-image: url('../images/menu_videos.png')        }
+.menu_settings_icon { -webkit-mask-image: url('../images/menu_settings.png')      }
+
+.menu_icon, .menu_item_name { float: left }
+
+.menu_item_name {
+  margin: 1px 0 0 10px;
+  user-select: none;
+  transition: color .3s;
+}
+
 .menu_account_item {
   height: 125px;
   width: 250px;
@@ -161,6 +201,30 @@ img {
   color: #d9d9d9;
 }
 
+.update_item {
+  display: none;
+  width: 250px;
+  position: fixed;
+  bottom: 0;
+  background-color: #4a76a8;
+  padding-top: 12px;
+  color: #eee;
+}
+
+.update_item:hover {
+  background-color: #3f6999 !important;
+}
+
+.update_item:active {
+  background-color: #325c8c !important;
+}
+
+.update_item div {
+  float: none;
+  text-align: center;
+  margin: 0;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -169,47 +233,6 @@ img {
 ::-webkit-scrollbar-thumb {
   border-radius: 25px;
   background-color: rgba(143, 143, 143, 0.7);
-}
-
-.menu_item {
-  height: 44px;
-  padding-top: 10px;
-  padding-right: 50px;
-  transition: background-color .3s;
-  cursor: pointer;
-  background-color: white;
-}
-
-.menu_item_active { transition: background-color .3s }
-
-.menu_item:hover, .menu_item_active:not(.menu_account_item) {
-  background-color: #ebeced;
-}
-
-.menu_icon {
-  width: 24px;
-  height: 22px;
-  margin-left: 10px;
-  background-color: #a6a6a6;
-  -webkit-mask-size: cover;
-}
-
-.menu_news_icon     { -webkit-mask-image: url('../images/menu_news.png')          }
-.menu_mess_icon     { -webkit-mask-image: url('../images/menu_messages.png')      }
-.menu_music_icon    { -webkit-mask-image: url('../images/menu_music.png')         }
-.menu_notify_icon   { -webkit-mask-image: url('../images/menu_notifications.png') }
-.menu_friends_icon  { -webkit-mask-image: url('../images/menu_friends.png')       }
-.menu_groups_icon   { -webkit-mask-image: url('../images/menu_groups.png')        }
-.menu_photos_icon   { -webkit-mask-image: url('../images/menu_photos.png')        }
-.menu_videos_icon   { -webkit-mask-image: url('../images/menu_videos.png')        }
-.menu_settings_icon { -webkit-mask-image: url('../images/menu_settings.png')      }
-
-.menu_icon, .menu_item_name { float: left }
-
-.menu_item_name {
-  margin: 1px 0 0 10px;
-  user-select: none;
-  transition: color .3s;
 }
 
 .content {

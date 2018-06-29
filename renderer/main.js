@@ -23,19 +23,27 @@ const modal = require('./js/modal');
 const vkapi = require('./js/vkapi');
 const theme = require('./js/theme');
 const update = require('./js/update');
-const users = JSON.parse(localStorage.getItem('users') || `{"list":[]}`);
-const settings = JSON.parse(localStorage.getItem('settings') || JSON.stringify({
+
+var users = JSON.parse(localStorage.getItem('users') || `{"list":[]}`),
+    settings = JSON.parse(localStorage.getItem('settings') || '{}');
+
+settings = Object.assign({
   window: getCurrentWindow().getBounds(),
   volume: 1,
   def_tab: 0,
-  theme: 'white'
-}));
+  theme: 'white',
+  update: true,
+  branch: 'master',
+  notify_updates: true
+}, settings);
 
 users.save = () => localStorage.setItem('users', JSON.stringify(users));
 settings.save = () => localStorage.setItem('settings', JSON.stringify(settings));
 
 theme();
-update();
+update.check();
+
+var updateTimer = setInterval(update.check, 1000 * 60 * 5);
 
 var header = qs('.header'),
     content = qs('.content'),
@@ -58,7 +66,7 @@ content.children[settings.def_tab].classList.add('content_active');
 [].slice.call(menu.children).forEach(item => {
   item.addEventListener('click', function() {
     let tab = [].slice.call(menu.children).indexOf(this);
-    if(tab == 0) return; // если это блок юзера
+    if([-1, 0, 10].includes(tab)) return;
 
     menu.style.left = MENU_WIDTH;
     if(qs('.menu_item_active') == this) return;

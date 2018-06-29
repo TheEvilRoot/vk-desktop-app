@@ -11,7 +11,7 @@
 
 'use strict';
 
-const { Menu, getCurrentWindow, shell } = require('electron').remote;
+const { Menu, getCurrentWindow, shell, app } = require('electron').remote;
 const https = require('https');
 const fs = require('fs');
 
@@ -72,14 +72,6 @@ var err_click = target => {
           target,
           danyadev.errorData[target].resolve);
 }
-
-var app_path = (() => {
-  let prod_path = `${process.resourcesPath.replace(/\\/g, '/')}/app`;
-
-  if(fs.existsSync(prod_path)) return prod_path;
-
-  return process.argv[5].replace(/--app-path=/, '').replace(/\\/g, '/');
-})();
 
 var unix = () => {
   let homeDownloads = `${process.env.HOME}/Downloads`;
@@ -152,10 +144,11 @@ var checkVerify = (off, id) => {
 }
 
 module.exports = {
-  app_path, request, client_keys, verifiedList,
+  request, client_keys, verifiedList,
   err_click, downloadsPath, checkVerify,
   openLink: url => shell.openExternal(url),
   showContextMenu: t => Menu.buildFromTemplate(t).popup(getCurrentWindow()),
   isNumber: n => !isNaN(parseFloat(n)) && isFinite(n),
-  r: (i, a) => Math.floor(Math.random() * (a - i + 1)) + i
+  r: (i, a) => Math.floor(Math.random() * (a - i + 1)) + i,
+  app_path: app.getAppPath().replace(/\\/g, '/')
 }
