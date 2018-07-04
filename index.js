@@ -16,11 +16,12 @@ try {
       `${__dirname}/core`,
       `${__dirname}/docs`,
       `${__dirname}/node_modules`,
+      `${__dirname}/.gitignore`,
       `${__dirname}/changelog.txt`,
       `${__dirname}/index.js`,
       `${__dirname}/LICENSE`,
-      `${__dirname}/README.md`,
-      `${__dirname}/package.json`
+      `${__dirname}/package.json`,
+      `${__dirname}/README.md`
     ]
   });
 } catch(e) {};
@@ -29,9 +30,7 @@ const { app, BrowserWindow } = require('electron');
 
 app.commandLine.appendSwitch('disable-mojo-local-storage');
 
-app.on('window-all-closed', () => {
-  if(process.platform != 'darwin') app.quit();
-});
+app.on('window-all-closed', app.quit);
 
 app.on('ready', () => {
   win = new BrowserWindow({
