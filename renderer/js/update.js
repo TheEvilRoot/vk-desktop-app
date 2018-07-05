@@ -19,11 +19,6 @@ const { app_path } = utils;
 
 const auth = 'client_id=2cca2222a6f211d96eb5&client_secret=7ca0d642c52d3c5c4d793782993da8691152a8f3';
 
-qs('.update_item').addEventListener('click', () => {
-  qs('.update_item').remove();
-  update();
-});
-
 var check = async () => {
   if(!settings.update) return;
   
@@ -65,21 +60,32 @@ var check = async () => {
     }
   });
   
-  let lastV = Object.keys(versions)[0];
+  let lastV = Object.keys(versions)[0],
+      update_item = document.createElement('div');
   
-  changes = changes.replace(/\n[\d]+\./g, () => `\n${++num}.`);
+  update_item.classList.add('menu_item');
+  update_item.classList.add('update_item');
+  update_item.innerHTML = `<div class="menu_item_name">Обновить приложение</div>`;
+  qs('.menu').appendChild(update_item);
+  qs('.menu_list').style.height = 'calc(100vh - 125px - 44px)';
+  
+  update_item.addEventListener('click', () => {
+    toggleMenu();
+    update_item.remove();
+    update();
+    qs('.menu_list').style.height = 'calc(100vh - 125px)';
+  });
   
   clearTimeout(updateTimer);
   
-  qs('.update_item').style.display = 'block';
-  
   danyadev.sha = data.commit.sha;
+  changes = changes.replace(/\n[\d]+\./g, () => `\n${++num}.`);
   
   if(!settings.notify_updates) return;
   
   dialog.showMessageBox({
     type: 'info',
-    buttons: ['ОК', 'Отмена'],
+    buttons: ['Отмена', 'ОК'],
     title: `Новая версия ${lastV}`,
     message: `Доступна новая версия ${lastV}${isDev ? ' (бета)' : ''}`,
     detail: `Список изменений:\n${changes}\n\nОбновиться до версии ${lastV}?`,
@@ -91,8 +97,8 @@ var check = async () => {
       settings.save();
     }
     
-    if(!cancel) {
-      qs('.update_item').remove();
+    if(cancel) {
+      update_item.remove();
       update();
     }
   });
@@ -103,19 +109,19 @@ var update = async () => {
       localFiles = await getLocalFiles(),
       deleteFiles = localFiles.filter(file => !githubFiles.includes(file));
   
-  let updateFile = (i = 0) => {
+  let updateFile = i => {
     if(!githubFiles[i]) {
       deleteFiles.forEach(file => fs.unlinkSync(file));
       
       dialog.showMessageBox({
         type: 'info',
-        buttons: ['ОК', 'Отмена'],
+        buttons: ['Отмена', 'ОК'],
         title: 'Обновление завершено',
         message: 'Обновление завершено',
         detail: 'Для обновления необходимо перезагрузить приложение.\nПродолжить?',
         noLink: true
       }, btn => {
-        if(!btn) {
+        if(btn) {
           app.relaunch();
           app.exit();
         }
@@ -143,7 +149,7 @@ var update = async () => {
     });
   }
   
-  updateFile();
+  updateFile(0);
 }
 
 var getGithubFiles = () => {

@@ -149,6 +149,6 @@ module.exports = {
   openLink: url => shell.openExternal(url),
   showContextMenu: t => Menu.buildFromTemplate(t).popup(getCurrentWindow()),
   isNumber: n => !isNaN(parseFloat(n)) && isFinite(n),
-  r: (i, a) => Math.floor(Math.random() * (a - i + 1)) + i,
+  random: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
   app_path: app.getAppPath().replace(/\\/g, '/')
 }

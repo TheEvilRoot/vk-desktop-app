@@ -11,33 +11,6 @@
 
 'use strict';
 
-// Методы для получения серверов для загрузки и самой загрузки файлов (TODO)
-// истории: https://vk.com/blog/stories-api
-/*                      [upload_field_name, step_one_method_name, step_two_method_name]
-
-UFT_AUDIO:              ['file', 'audio.getUploadServer', 'audio.save'],
-UFT_COVER:              ['photo', 'photos.getOwnerCoverPhotoUploadServer', 'photos.saveOwnerCoverPhoto'],
-UFT_DOCUMENT:           ['file', 'docs.getUploadServer', 'docs.save'],
-UFT_DOCUMENT_PM:        ['file', 'docs.getMessagesUploadServer', 'docs.save'],
-UFT_DOCUMENT_WALL:      ['file', 'docs.getWallUploadServer', 'docs.save'],
-UFT_PHOTO_ALBUM:        ['file', 'photos.getUploadServer', 'photos.save'],
-UFT_PHOTO_MAIN:         ['photo', 'photos.getOwnerPhotoUploadServer', 'photos.saveOwnerPhoto'],
-UFT_PHOTO_MARKET:       ['file', 'photos.getMarketUploadServer', 'photos.saveMarketPhoto'],
-UFT_PHOTO_MARKET_ALBUM: ['file', 'photos.getMarketAlbumUploadServer', 'photos.saveMarketAlbumPhoto'],
-UFT_PHOTO_PM:           ['photo', 'photos.getMessagesUploadServer', 'photos.saveMessagesPhoto'],
-UFT_PHOTO_WALL:         ['photo', 'photos.getWallUploadServer', 'photos.saveWallPhoto'],
-UFT_VIDEO:              ['video_file', 'video.save']
-*/
-
-// var signedPost = message => {
-//   vkapi.method('wall.post', {
-//     signed: 1,
-//     message: message,
-//     owner_id: 88262293,
-//     publish_date: parseInt(new Date().getTime()/1000) + 60
-//   });
-// }
-
 const https = require('https');
 const fs = require('fs');
 const querystring = require('querystring');
@@ -74,7 +47,7 @@ var method = (method_name, params, target, _resolve) => {
 
       if(body.error) {
         if(body.error.error_code == 14) {
-          modal.captcha(body.error.captcha_img, body.error.captcha_sid, (key, sid) => {
+          modal.captcha(body.error.captcha_img, body.error.captcha_sid).then((key, sid) => {
             method(method_name,
                    Object.assign(params, { captcha_key: key, captcha_sid: sid }),
                    target,
@@ -131,9 +104,7 @@ var auth = (params, target, _resolve) => {
       console.log(new Date().toLocaleTimeString(), 'auth', '\n', body);
 
       if(body.error == 'need_captcha') {
-        qs('.login_button').disabled = false;
-        
-        modal.captcha(body.captcha_img, body.captcha_sid, (captcha_key, captcha_sid) => {
+        modal.captcha(body.captcha_img, body.captcha_sid).then((captcha_key, captcha_sid) => {
           auth(Object.assign({
             login: params.login,
             password: params.password,

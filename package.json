@@ -10,9 +10,6 @@
     "type": "git",
     "url": "https://github.com/danyadev/vk-desktop-app"
   },
-  "bugs": {
-    "url": "https://github.com/danyadev/vk-desktop-app/issues"
-  },
   "homepage": "https://github.com/danyadev/vk-desktop-app#readme",
   "devDependencies": {
     "electron-reload": "^1.2.3"

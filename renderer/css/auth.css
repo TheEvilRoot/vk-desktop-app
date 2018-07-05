@@ -10,7 +10,7 @@
 */
 
 .open_devTools {
-  position: fixed;
+  position: absolute;
   bottom: 6px;
   left: 5px;
   width: 24px;
@@ -18,14 +18,26 @@
   background-color: #c2c2c2;
   -webkit-mask-size: cover;
   -webkit-mask-image: url('../images/menu_settings.png');
-  transition: all .3s;
+  transition: background-color .3s;
 }
 
-.open_devTools:hover { background-color: #a6a6a6 }
+.open_devTools:hover, .open_multiacc:hover { background-color: #a6a6a6 }
+
+.open_multiacc {
+  position: absolute;
+  bottom: 32px;
+  left: 5px;
+  width: 24px;
+  height: 22px;
+  background-color: #c2c2c2;
+  -webkit-mask-size: cover;
+  -webkit-mask-image: url('../images/menu_groups.png');
+  transition: background-color .3s;
+}
 
 .wrapper_login {
-  display: flex;
   height: 100vh;
+  display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -34,10 +46,10 @@
 .wrapper_content { display: none }
 
 .login_logo {
-  margin-top: -70px;
-  margin-bottom: 25px;
   width: 125px;
   height: 125px;
+  margin-top: -70px;
+  margin-bottom: 25px;
 }
 
 .login_title {
@@ -51,25 +63,31 @@
 .password_input { position: relative }
 
 .login_input, .password_input input {
+  display: block;
   margin-bottom: 8px;
 }
 
-.show_password {
+.show_password, .account_show_password {
+  position: absolute;
+  right: 0;
+  width: 2pc;
+  height: 36px;
   -webkit-mask-image: url('../images/show_password_hidden.svg');
   -webkit-mask-size: 20px 11px;
   -webkit-mask-position: center center;
   -webkit-mask-repeat: no-repeat;
   background-color: #c2c2c2;
-  position: absolute;
-  right: 0;
-  width: 2pc;
-  height: 36px;
-  transition: background-color .3s;
   cursor: pointer;
+  transition: background-color .3s;
 }
 
-.show_password:hover { background-color: #aaa }
-.show_password.active { -webkit-mask-image: url('../images/show_password_showed.svg') }
+.show_password:hover,
+.account_show_password:hover { background-color: #aaa }
+
+.show_password.active,
+.account_show_password.active {
+  -webkit-mask-image: url('../images/show_password_showed.svg');
+}
 
 .twofa_info {
   text-align: center;
