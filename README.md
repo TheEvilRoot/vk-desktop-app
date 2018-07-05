@@ -11,7 +11,7 @@
 * Темная тема
 * Мультиаккаунт
 ## Сборка
-1. Установите [Node.js][https://nodejs.org/en/] и [git][https://git-scm.com/]
+1. Установите [Node.js](https://nodejs.org/en/) и [git](https://git-scm.com/)
 2. Откройте консоль
 3. Установите `electron packager`: `npm i -g electron-packager`
 4. Склонируйте репозиторий: `git clone https://github.com/danyadev/vk-desktop-app.git`  
