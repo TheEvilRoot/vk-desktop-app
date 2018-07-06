@@ -15,10 +15,9 @@ const q = require('querystring');
 
 var acc_status = qs('.menu_acc_status'),
     menu_account_bgc = qs('.menu_account_bgc'),
-    full_name = qs('.menu_acc_name'),
-    menu = qs('.menu');
+    full_name = qs('.menu_acc_name');
 
-var init = (users, user) => {
+var init = user => {
   acc_status.innerHTML = user.status;
   account_icon.style.backgroundImage = menu_account_bgc.style.backgroundImage = `url('${user.photo_100}')`;
   full_name.innerHTML = `${user.first_name} ${user.last_name}`;
@@ -31,17 +30,16 @@ var init = (users, user) => {
         'notifications', 'friends',
         'groups', 'photos',
         'videos', 'settings'
-      ], def_item = settings_json.settings.def_tab;
+      ], def_item = settings.def_tab;
 
   require(`./modules/${items[def_item]}`).load(user);
-  require('./account').init();
 
   for(let i=0; i<items.length; i++) {
     let item;
 
     if(i == def_item) continue;
     else if(i == 0) item = qs('.acc_icon');
-    else item = menu.children[i];
+    else item = menu_list[i];
 
     item.addEventListener('click', () => {
       require(`./modules/${items[i]}`).load(user);
@@ -52,10 +50,10 @@ var init = (users, user) => {
     code: `
     return {
       m: API.messages.getLongPollServer({ lp_version: 3 }),
-      u: API.users.get({ fields: "status,photo_100,verified" }),
+      u: API.users.get({ fields: "status,photo_100,verified,screen_name" }),
       a: API.messages.allowMessagesFromGroup({ group_id: 164186598, key: "VK_Desktop" })
     };`.trim().replace(/\n/g, '')
-  }, data => {
+  }).then(data => {
     let res = data.response.u[0];
     
     require('./modules/messages').updateLongPoll(data.response.m);
@@ -63,20 +61,22 @@ var init = (users, user) => {
     if(user.first_name != res.first_name ||
         user.last_name != res.last_name ||
         user.photo_100 != res.photo_100 ||
+        user.screen_name != (res.screen_name || `id${res.id}`) ||
         user.status != res.status) {
       user.first_name = res.first_name;
       user.last_name = res.last_name;
       user.photo_100 = res.photo_100;
+      user.screen_name = res.screen_name || `id${res.id}`;
       user.status = res.status;
 
-      users[user.id] = user;
-      fs.writeFileSync(USERS_PATH, JSON.stringify(users, null, 2));
+      users.list[users.list.indexOf(danyadev.user)] = user;
+      users.save();
+      
+      danyadev.user = user;
 
       acc_status.innerHTML = user.status;
       account_icon.style.backgroundImage = menu_account_bgc.style.backgroundImage = `url('${user.photo_100}')`;
       full_name.innerHTML = `${user.first_name} ${user.last_name}`;
-
-      danyadev.user = user;
     }
     
     utils.verifiedList(() => {

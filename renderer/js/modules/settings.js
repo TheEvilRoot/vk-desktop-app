@@ -20,11 +20,10 @@ var settings_tabs = qs('.settings_tabs'),
 settings_tabs.children[0].classList.add('settings_tab_active');
 settings_content_block.children[0].classList.add('settings_content_active');
 
-[].slice.call(settings_tabs.children).forEach(item => {
-  item.addEventListener('click', function() {
-    if(qs('.settings_tab_active') == this) return;
-    let tab = [].slice.call(settings_tabs.children).indexOf(this);
-
+[].slice.call(settings_tabs.children).forEach((item, tab) => {
+  item.addEventListener('click', () => {
+    if(qs('.settings_tab_active') == item) return;
+    
     qs('.settings_tab_active').classList.remove('settings_tab_active');
     qs('.settings_content_active').classList.remove('settings_content_active');
 
@@ -79,38 +78,79 @@ var load = () => {
 
 settings_main.style.display = 'none';
 
-vkapi.method('execute.getAccountSettings', null, data => {
+vkapi.method('account.getProfileInfo', null).then(data => {
   settings_main.style.display = '';
   qs('.settings_block_err').style.display = 'none';
 
-  qs('.settings_nick').value = data.response.domain;
+  qs('.settings_nick').value = data.response.screen_name || `id${danyadev.user.id}`;
+  
+  if(settings.update) qs('.check_updates').classList.add('on');
+  if(settings.update && settings.branch == 'dev') qs('.get_beta_versions').classList.add('on');
+  if(settings.notify_updates) qs('.notify_updates').classList.add('on');
 }, 'settings_main_err');
 
-qs('.input').addEventListener('click', () => qs('.input_input').focus());
+qs('.custom_input').addEventListener('click', () => {
+  qs('.custom_input_input').focus();
+});
+
+qs('.check_updates').addEventListener('click', () => {
+  if(qs('.check_updates').classList.contains('on')) {
+    settings.update = false;
+    qs('.get_beta_versions').classList.remove('on');
+  } else {
+    settings.update = true;
+    
+    if(settings.branch == 'dev') {
+      qs('.get_beta_versions').classList.add('on');
+    }
+  }
+  
+  settings.save();
+  qs('.check_updates').classList.toggle('on');
+});
+
+qs('.get_beta_versions').addEventListener('click', () => {
+  if(qs('.get_beta_versions').classList.contains('on')) {
+    settings.branch = 'master';
+  } else {
+    settings.branch = 'dev';
+    
+    if(!qs('.check_updates').classList.contains('on')) {
+      qs('.check_updates').classList.add('on');
+    }
+  }
+  
+  settings.save();
+  qs('.get_beta_versions').classList.toggle('on');
+});
+
+qs('.notify_updates').addEventListener('click', () => {
+  if(qs('.notify_updates').classList.contains('on')) {
+    settings.notify_updates = false;
+  } else {
+    settings.notify_updates = true;
+  }
+  
+  settings.save();
+  qs('.notify_updates').classList.toggle('on');
+});
 
 qs('.logout').addEventListener('click', () => {
   dialog.showMessageBox({
     type: 'info',
-    buttons: ['ОК', 'Отмена'],
+    buttons: ['Отмена', 'ОК'],
     title: 'Выход',
     message: 'Вы действительно хотите выйти?',
     detail: 'Будет открыта форма входа',
     noLink: true
   }, btn => {
-    if(!btn) {
-      settings_json.settings.theme = 'white';
-      settings_json.settings.def_tab = 0;
-
-      let users_json = JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8'));
-
-      delete users_json[danyadev.user.id];
-
-      let keys = Object.keys(users_json);
-
-      if(keys.length) users_json[keys[0]].active = true;
-
-      fs.writeFileSync(USERS_PATH, JSON.stringify(users_json, null, 2));
-      fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
+    if(btn) {
+      settings.theme = 'white';
+      settings.def_tab = 0;
+      settings.save();
+      
+      users.list.splice(users.list.indexOf(danyadev.user), 1);
+      users.save();
 
       getCurrentWindow().reload();
     }
@@ -120,27 +160,19 @@ qs('.logout').addEventListener('click', () => {
 // отключить пункт меню = сделать его display: none;
 
 initSelect('.change_theme', (sel, list, selected) => {
-  let optionBlock = '',
-      themeList = fs.readdirSync(`${utils.app_path}/renderer/themes`)
-                    .map(item => item.replace(/\.css/, ''));
+  let themeID = ['white', 'dark'].indexOf(settings.theme);
 
-  themeList.unshift('white');
-
-  let themeID = themeList.indexOf(settings_json.settings.theme);
-
-  for(let i=0; i<themeList.length; i++) {
-    optionBlock += `<div class="option theme_block">${themeList[i]}</div>`
-  }
-
-  list.innerHTML = optionBlock;
-  selected.innerHTML = settings_json.settings.theme;
-
+  list.innerHTML = `
+    <div class="option theme_block">white</div>
+    <div class="option theme_block">dark</div>
+  `.trim();
+  
+  selected.innerHTML = settings.theme;
   list.children[themeID].classList.add('active');
 }, event => {
-  settings_json.settings.theme = event.target.innerHTML;
-
+  settings.theme = event.target.innerHTML;
+  settings.save();
   theme(event.target.innerHTML);
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
 });
 
 initSelect('.change_def_tab', (sel, list, selected) => {
@@ -150,8 +182,8 @@ initSelect('.change_def_tab', (sel, list, selected) => {
     'Уведомления', 'Друзья',
     'Группы', 'Фотографии',
     'Видеозаписи', 'Настройки'
-  ],  optionBlock = '',
-      defTabID = settings_json.settings.def_tab;
+  ], optionBlock = '',
+     defTabID = settings.def_tab;
 
   for(let i=0; i<menu_list.length; i++) {
     optionBlock += `<div class="option theme_block">${menu_list[i]}</div>`
@@ -162,9 +194,8 @@ initSelect('.change_def_tab', (sel, list, selected) => {
 
   list.children[defTabID].classList.add('active');
 }, (event, list) => {
-  settings_json.settings.def_tab = [].slice.call(list.children).indexOf(event.target);
-
-  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings_json, null, 2));
+  settings.def_tab = [].slice.call(list.children).indexOf(event.target);
+  settings.save();
 });
 
 module.exports = {

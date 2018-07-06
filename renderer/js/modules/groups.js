@@ -21,7 +21,8 @@ danyadev.groups.loaded = 0;
 danyadev.groups.list = [];
 
 var load = () => {
-  utils.verifiedList(getAllGroups, 'group_item_err');
+  utils.verifiedList('group_item_err')
+    .then(() => getAllGroups());
 }
 
 var pad = (n, tx) => {
@@ -43,7 +44,7 @@ var getAllGroups = offset => {
     extended: true,
     fields: 'members_count,activity,verified',
     offset: offset
-  }, data => {
+  }, 'group_item_err').then(data => {
     danyadev.groups.count = data.response.count;
     danyadev.groups.list = danyadev.groups.list.concat(data.response.items);
 
@@ -54,7 +55,7 @@ var getAllGroups = offset => {
         qs('.group_item_err').innerHTML = 'Вы не состоите ни в одной группе.'
       } else render();
     }
-  }, 'group_item_err');
+  });
 }
 
 var render = () => {
@@ -65,7 +66,7 @@ var render = () => {
     let item = danyadev.groups.list[danyadev.groups.loaded],
         members = 'подписчик' + pad(item.members_count, ['', 'а', 'ов']),
         name, verify = '',
-        _v = utils.checkVerify(item.verified, item.id);
+        _v = utils.checkVerify(item.verified, -item.id);
 
     if(item.deactivated) {
       name = '<div class="group_type">Сообщество заблокировано</div>';
@@ -114,7 +115,7 @@ var render = () => {
 
 var renderNewItems = () => {
   let h = window.screen.height > group_list.clientHeight,
-      l = group_list.clientHeight - window.outerHeight - 100 < content.scrollTop,
+      l = group_list.clientHeight - window.outerHeight < content.scrollTop,
       a = group_list.parentNode.classList.contains('content_active');
 
   if(a && (h || l)) {

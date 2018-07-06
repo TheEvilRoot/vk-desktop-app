@@ -17,17 +17,11 @@
   transition: background-color .3s;
 }
 
-.settings_content_block {
-  min-width: 410px;
-  max-width: calc(100vw - 200px);
-}
-
 .settings_tabs {
   width: 150px;
   background-color: white;
   padding: 5px 0;
-  position: fixed;
-  right: 0;
+  float: right;
   margin-right: 15px;
   border-radius: 5px;
   box-shadow: 0 1px 0 0 #d7d8db, 0 0 0 1px #e3e4e8;
@@ -49,6 +43,11 @@
 
 .settings_tab_active {
   border-left: 2px solid #5181b8;
+}
+
+.settings_content_block {
+  min-width: 410px;
+  max-width: calc(100vw - 200px);
 }
 
 .settings_block {
@@ -151,7 +150,7 @@
   top: -5px;
 }
 
-.input {
+.custom_input {
   display: inline-block;
   border: 1px solid #d2d8de;
   border-radius: 3px;
@@ -163,14 +162,14 @@
   cursor: text;
 }
 
-.input_prefix {
+.custom_input_prefix {
   font-size: 13px;
   color: #828282;
   display: inline;
   user-select: none;
 }
 
-.input_input {
+.custom_input_input {
   width: 100px;
   outline: none;
   border: none;
@@ -179,6 +178,11 @@
 .settings_left_block {
   width: 170px;
   display: inline-block;
+  float: left;
+}
+
+.settings_right_block {
+  margin-left: 170px;
 }
 
 .settings_input {
@@ -194,27 +198,9 @@
   transition: .3s all;
 }
 
-.settings_btn {
-  padding: 7px 16px 8px;
+.settings_main_btn {
   margin: 0 auto;
   width: 125px;
-  display: block;
-  user-select: none;
-  text-align: center;
-  background-color: #5181b8;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  transition: background-color .3s;
-}
-
-.settings_btn:not(:disabled) { cursor: pointer }
-
-.settings_btn:hover { background-color: #638bba }
-
-.settings_btn:disabled {
-  opacity: .5;
-  background-color: #5181b8;
 }
 
 .settings_main_err {
@@ -226,4 +212,33 @@
 
 .new_password {
   margin-top: 5px;
+}
+
+.settings_checkbox {
+  line-height: 1em;
+  cursor: pointer;
+  display: inline-block;
+  margin-bottom: 5px;
+  user-select: none;
+}
+
+.settings_checkbox:before {
+  content: '';
+  float: left;
+  background: url('../images/checkbox.svg') no-repeat 0;
+  margin: 0 7px 0 0;
+  width: 15px;
+  height: 15px;
+}
+
+.settings_checkbox:hover:before {
+  background-image: url('../images/checkbox_hover.svg');
+}
+
+.settings_checkbox.on:before {
+  background-image: url('../images/checkbox_checked.svg');
+}
+
+.settings_checkbox.on:hover:before {
+  background-image: url('../images/checkbox_checked_hover.svg');
 }

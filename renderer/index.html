@@ -10,9 +10,8 @@
     <div class="wrapper_content">
       <div class="header theme_block">
         <div class="open_menu"><div class="open_menu_icon"></div></div>
-        <!-- сюда добавить минимум аудио -->
       </div>
-      <div class="menu theme_menu">
+      <div class="menu">
         <div class="menu_account_item">
           <div class="menu_account_bgc"></div>
           <div class="menu_multiacc"></div>
@@ -20,43 +19,46 @@
           <div class="menu_acc_name"></div>
           <div class="menu_acc_status">...</div>
         </div>
-        <div class="menu_item theme_menu">
-          <div class="menu_icon menu_news_icon"></div>
-          <div class="menu_item_name">Новости</div>
-        </div>
-        <div class="menu_item theme_menu">
-          <div class="menu_icon menu_mess_icon"></div>
-          <div class="menu_item_name">Сообщения</div>
-        </div>
-        <div class="menu_item theme_menu">
-          <div class="menu_icon menu_music_icon"></div>
-          <div class="menu_item_name">Аудиозаписи</div>
-        </div>
-        <div class="menu_item theme_menu">
-          <div class="menu_icon menu_notify_icon"></div>
-          <div class="menu_item_name">Уведомления</div>
-        </div>
-        <div class="menu_item theme_menu">
-          <div class="menu_icon menu_friends_icon"></div>
-          <div class="menu_item_name">Друзья</div>
-        </div>
-        <div class="menu_item theme_menu">
-          <div class="menu_icon menu_groups_icon"></div>
-          <div class="menu_item_name">Группы</div>
-        </div>
-        <div class="menu_item theme_menu">
-          <div class="menu_icon menu_photos_icon"></div>
-          <div class="menu_item_name">Фотографии</div>
-        </div>
-        <div class="menu_item theme_menu">
-          <div class="menu_icon menu_videos_icon"></div>
-          <div class="menu_item_name">Видеозаписи</div>
-        </div>
-        <div class="menu_item theme_menu settings_item">
-          <div class="menu_icon menu_settings_icon"></div>
-          <div class="menu_item_name">Настройки</div>
+        <div class="menu_list theme_bgc">
+          <div class="menu_item">
+            <div class="menu_icon menu_news_icon"></div>
+            <div class="menu_item_name">Новости</div>
+          </div>
+          <div class="menu_item">
+            <div class="menu_icon menu_mess_icon"></div>
+            <div class="menu_item_name">Сообщения</div>
+          </div>
+          <div class="menu_item">
+            <div class="menu_icon menu_music_icon"></div>
+            <div class="menu_item_name">Аудиозаписи</div>
+          </div>
+          <div class="menu_item">
+            <div class="menu_icon menu_notify_icon"></div>
+            <div class="menu_item_name">Уведомления</div>
+          </div>
+          <div class="menu_item">
+            <div class="menu_icon menu_friends_icon"></div>
+            <div class="menu_item_name">Друзья</div>
+          </div>
+          <div class="menu_item">
+            <div class="menu_icon menu_groups_icon"></div>
+            <div class="menu_item_name">Группы</div>
+          </div>
+          <div class="menu_item">
+            <div class="menu_icon menu_photos_icon"></div>
+            <div class="menu_item_name">Фотографии</div>
+          </div>
+          <div class="menu_item">
+            <div class="menu_icon menu_videos_icon"></div>
+            <div class="menu_item_name">Видеозаписи</div>
+          </div>
+          <div class="menu_item settings_item">
+            <div class="menu_icon menu_settings_icon"></div>
+            <div class="menu_item_name">Настройки</div>
+          </div>
         </div>
       </div>
+      <div class="content_hide"></div>
       <div class="content theme_bgc">
         <div class="tab_content">Моя страница</div>
         <div class="tab_content">
@@ -69,12 +71,7 @@
         </div>
         <div class="tab_content">
           <div class="messages_list">
-            <div class="block"></div>
-          </div>
-          <div class="messages_list_err">
-            <div class="block">
-              <div class="messages_item_err item_err">Загрузка...</div>
-            </div>
+            <div class="block">Скоро</div>
           </div>
         </div>
         <div class="tab_content">
@@ -136,7 +133,7 @@
           <div class="notifications_list"></div>
           <div class="notifications_list_err">
             <div class="block mini">
-              <div class="notifications_item_err item_err">Загрузка...</div>
+              <div class="notifications_item_err item_err">Скоро</div>
             </div>
           </div>
         </div>
@@ -172,9 +169,9 @@
                 <div class="settings_block theme_block settings_main">
                   <div class="settings_line">
                     <div class="settings_left_block">Адрес страницы</div>
-                    <div class="input theme_bgc">
-                      <div class="input_prefix">https://vk.com/</div>
-                      <input type="text" class="input_input settings_nick theme_bgc">
+                    <div class="custom_input theme_bgc">
+                      <div class="custom_input_prefix">https://vk.com/</div>
+                      <input type="text" class="custom_input_input settings_nick theme_bgc">
                     </div>
                   </div>
                   <div class="settings_line">
@@ -184,7 +181,16 @@
                     <input type="text" class="settings_input new_password theme_bgc">
                   </div>
                   <div class="settings_line">
-                    <input type="button" disabled class="settings_btn" value="Сохранить">
+                    <div class="settings_left_block">Обновление</div>
+                    <div class="settings_right_block">
+                      <div class="settings_checkbox check_updates">Проверять обновления</div>
+                    </div>
+                    <div class="settings_right_block">
+                      <div class="settings_checkbox get_beta_versions">Получать бета версии</div>
+                    </div>
+                    <div class="settings_right_block">
+                      <div class="settings_checkbox notify_updates">Уведомлять об обновлениях</div>
+                    </div>
                   </div>
                 </div>
                 <div class="settings_block theme_block">
@@ -224,8 +230,5 @@
         </div>
       </div>
     </div>
-    <!-- <div class="user_banned">
-      <div class="user_banned_info">Ваша страница заблокирована</div>
-    </div> -->
   </body>
 </html>

@@ -10,53 +10,54 @@
 */
 
 try {
-  require('./../reload/node_modules/electron-reload')(__dirname, {
+  require('electron-reload')(__dirname, {
     ignored: [
-      `${__dirname}/docs`,
       `${__dirname}/.git`,
-      `${__dirname}/index.js`,
-      `${__dirname}/dev.json`,
-      `${__dirname}/README.md`,
-      `${__dirname}/package.json`,
+      `${__dirname}/core`,
+      `${__dirname}/docs`,
       `${__dirname}/node_modules`,
-      `${__dirname}/renderer/users.json`,
-      `${__dirname}/renderer/settings.json`
+      `${__dirname}/.gitignore`,
+      `${__dirname}/changelog.txt`,
+      `${__dirname}/index.js`,
+      `${__dirname}/LICENSE`,
+      `${__dirname}/package.json`,
+      `${__dirname}/README.md`
     ]
   });
 } catch(e) {};
 
 const { app, BrowserWindow } = require('electron');
-const fs = require('fs');
-const SETTINGS_PATH = `${__dirname}/renderer/settings.json`;
-const USERS_PATH = `${__dirname}/renderer/users.json`;
 
-if(!fs.existsSync(USERS_PATH)) {
-  fs.writeFileSync(USERS_PATH, '{}', 'utf-8');
-}
+app.commandLine.appendSwitch('disable-mojo-local-storage');
 
-var settings = JSON.parse(fs.readFileSync(SETTINGS_PATH, 'utf-8'));
-
-app.on('window-all-closed', () => {
-  if(process.platform != 'darwin') app.quit();
-});
+app.on('window-all-closed', app.quit);
 
 app.on('ready', () => {
-  let opts = {
-    width: settings.window.width,
-    height: settings.window.height,
+  win = new BrowserWindow({
     minWidth: 640,
     minHeight: 480,
     show: false
-  }
+  });
+  
+  win.webContents.executeJavaScript(`[localStorage.getItem('settings'), screen.availWidth, screen.availHeight]`)
+  .then(data => {
+    if(!data[0]) return;
+    data[0] = JSON.parse(data[0]).window;
+    
+    let q = w => w < 0 ? -w : w,
+        maximized = data[0].width > data[1] && data[0].height > data[2];
+    
+    win.setBounds({
+      x: q(data[0].x),
+      y: q(data[0].y),
+      width: maximized ? data[1] : data[0].width,
+      height: maximized ? data[2] : data[0].height
+    });
+    
+    if(maximized) win.maximize();
+  });
 
-  if(settings.window.x && settings.window.y) {
-    opts.x = settings.window.x < 0 ? 0 : settings.window.x;
-    opts.y = settings.window.y < 0 ? 0 : settings.window.y;
-  }
-
-  win = new BrowserWindow(opts);
-
-  win.setMenu(null); // удаление меню
+  win.setMenu(null);
   win.loadFile('renderer/index.html');
   win.on('ready-to-show', win.show);
   win.on('closed', () => win = null);

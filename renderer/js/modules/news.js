@@ -18,7 +18,8 @@ var news_list = qs('.news_list'),
     start_from = '';
 
 var load = () => {
-  utils.verifiedList(getNews, 'news_item_err');
+  utils.verifiedList('news_item_err')
+    .then(() => getNews());
 }
 
 // ads filters: friends_recomm,ads_app,ads_site,ads_post,ads_app_slider
@@ -37,7 +38,7 @@ var getNews = () => {
     start_from: start_from,
     filters: 'post,photo',
     fields: 'verified,sex,screen_name,photo_50,video_files'
-  }, data => {    
+  }, 'news_item_err').then(data => {    
     start_from = data.response.next_from;
     
     for(let i = 0; i < data.response.items.length; i++) {
@@ -79,7 +80,7 @@ var getNews = () => {
         head_name = `${head_data.first_name} ${head_data.last_name}`;
       }
       
-      let _v = utils.checkVerify(head_data.verified, head_data.id),
+      let _v = utils.checkVerify(head_data.verified, isGroup ? -head_data.id : head_data.id),
           sex = head_data.sex == 1 ? 'a' : '';
 
       if(_v[0]) {
@@ -139,6 +140,8 @@ var getNews = () => {
               text += '*Плейлист*';
             } else if(attach.type == 'album') {
               text += '*Фотоальбом*';
+            } else if (attach.type == 'page') {
+              text += '*Вики-страница*';
             } else {
               text += `Неизвестный тип прикрепления.\n
                 Скиньте текст ниже <div class='link' onclick='utils.openLink("https://vk.com/danyadev")'>разработчику</div>:\n
@@ -225,7 +228,7 @@ var getNews = () => {
         
         post_bottom = `
           <div class="post_bottom">
-            <div class="post_like" onclick="m('news').like(${isGroup ? -head_data.id : head_data.id}, ${item.post_id}, this)">
+            <div class="post_like" onclick="require('./js/modules/news').like(${isGroup ? -head_data.id : head_data.id}, ${item.post_id}, this)">
               <img class="post_like_img ${like_act_img}">
               <div class="post_like_count ${like_act_cnt}">${likes}</div>
             </div>
@@ -266,7 +269,7 @@ var getNews = () => {
     if(!start_from) getNews();
 
     loadNewNews();
-  }, 'news_item_err');
+  });
 }
 
 var loadNewNews = () => {
@@ -279,7 +282,7 @@ var loadNewNews = () => {
 
 var renderNewItems = () => {
   let h = window.screen.height > news_list.clientHeight,
-      l = news_list.clientHeight - window.outerHeight - 100 < content.scrollTop,
+      l = news_list.clientHeight - window.outerHeight < content.scrollTop,
       a = news_list.parentNode.classList.contains('content_active');
 
   if(a && (h || l)) {
@@ -287,19 +290,6 @@ var renderNewItems = () => {
     getNews();
   }
 }
-
-// if(item.type == 'friend') {
-//   let creator = data.response.profiles.find(el => el.id == item.source_id);
-//
-//   text += `${creator.first_name} ${creator.last_name} добавил${creator.sex == 1 ? 'a' : ''} в друзья `;
-//
-//   item.friends.items.forEach((item_, i) => {
-//     let user = data.response.profiles.find(el => el.id == item_.user_id);
-//     text += `${user.first_name_acc} ${user.last_name_acc}`;
-//
-//     if(i == item.friends.items.length-1) text += '.';
-//     else text += ', ';
-//   })
 
 var like = (oid, iid, target) => {
   if(!oid || !utils.isNumber(oid) || !iid || !utils.isNumber(iid)) return;
@@ -317,7 +307,7 @@ var like = (oid, iid, target) => {
       
       return { count: count.likes, remove: liked };
     `
-  }, data => {
+  }).then(data => {
     if(target) {
       if(data.response.remove) {
         target.children[0].classList.remove('post_btn_act_i');
@@ -333,5 +323,7 @@ var like = (oid, iid, target) => {
 }
 
 module.exports = {
-  load, getNews, like
+  load,
+  getNews,
+  like
 }

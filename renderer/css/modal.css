@@ -1,0 +1,329 @@
+/* 
+  Copyright © 2018 danyadev
+  Лицензия - Apache 2.0
+
+  Контактные данные:
+   vk: https://vk.com/danyadev
+   или https://vk.com/danyadev0
+   telegram: https://t.me/danyadev
+   github: https://github.com/danyadev/vk-desktop-app
+*/
+
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  z-index: 10;
+  padding: 20px 0;
+  width: 100%;
+  height: 100vh;
+  opacity: 0;
+  visibility: hidden;
+  background-color: rgba(0, 0, 0, .5);
+  transition: opacity .3s, visibility .3s;
+}
+
+.modal_active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal_header {
+  background-color: #4a76a8;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 25px;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+}
+
+.modal_header__title {
+  font-size: 15px;
+  color: #eee;
+  margin-top: -1px;
+}
+
+.modal_header__close_wrap {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  opacity: .5;
+  margin-right: -15px;
+  justify-content: center;
+  align-items: center;
+  transition: opacity .3s;
+}
+
+.modal_header__close_wrap:hover {
+  opacity: 1;
+}
+
+.modal_header__close {
+  -webkit-mask-image: url('../images/close.svg');
+  background-color: white;
+  width: 16px;
+  height: 16px;
+}
+
+.modal_bottom {
+  background-color: #4a76a8;
+  height: 54px;
+  border-top: 1px solid #e7e8ec;
+  background-color: #f7f8fa;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.modal_bottom__right {
+  width: 120px;
+  margin: 10px 10px 0 0;
+  float: right;
+}
+
+.modal_bottom__left {
+  width: 120px;
+  margin: 10px 0 0 10px;
+  float: left;
+}
+
+/* капча */
+
+.captcha_modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  z-index: 47;
+  padding: 20px 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, .3);
+  user-select: none;
+}
+
+.captcha {
+  height: 200px;
+  width: 300px;
+  border-radius: 3px;
+  user-select: auto;
+  background-color: #fcfcfc;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .26);
+}
+
+.captcha .modal_header {
+  height: 50px;
+}
+
+.captcha_content {
+  height: 130px;
+}
+
+.captcha_img img {
+  border: 1px solid #dadada;
+  width: 132px;
+  height: 52px;
+}
+
+.captcha_info {
+  font-size: 11.5px;
+  color: #888;
+  text-align: center;
+}
+
+.captcha_img {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.captcha_key {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.captcha .modal_bottom input { width: 130px }
+
+.captcha_btn input {
+  width: 250px;
+  height: 30px;
+}
+
+/* авторизация по токену */
+
+.auth_token {
+  width: 300px;
+  border-radius: 3px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .26);
+  text-align: center;
+}
+
+.at_content {
+  background-color: #fcfcfc;
+}
+
+.at_text {
+  padding-top: 15px;
+}
+
+.at_login { width: 130px }
+
+.at_input {
+  display: inline-block;
+  margin: 15px 0 15px 0;
+}
+
+.at_error { color: red }
+
+/* мультиакк */
+
+.account_list_wrap {
+  width: 350px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .26);
+}
+
+.account_list {
+  padding: 10px;
+  min-height: 250px;
+  max-height: 400px;
+  overflow: auto;
+  background-color: #fcfcfc;
+}
+
+.account_header {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 5px 0 12px 10px;
+  user-select: none;
+}
+
+.account_item {
+  height: 60px;
+  padding: 5px;
+  margin-bottom: 8px;
+  transition: background-color .2s;
+}
+
+.account_item_active .account_image_wrap:after {
+  content: ''; 
+  position: absolute; 
+  background-color: #8ac176; 
+  border-radius: 50%; 
+  bottom: 2%; 
+  right: 2%; 
+  border: 2px solid #fff; 
+  height: 8px; 
+  width: 8px; 
+} 
+
+.account_item:hover {
+  background-color: #eee;
+}
+
+.account_image_wrap {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  float: left;
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+.account_image_wrap:before {
+  position: absolute;
+  content: '';
+  opacity: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+  background-image: url('../images/plus.png');
+  background-size: cover;
+  transition: opacity .3s;
+}
+
+.account_item:not(.account_item_active) .account_image_wrap:hover:before {
+  opacity: 1;
+}
+
+.account_image {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+}
+
+.account_names {
+  float: left;
+  padding-top: 2px;
+  width: calc(100% - 62px);
+}
+
+.account_name {
+  font-size: 16px;
+  float: left;
+  width: calc(100% - 12px);
+}
+
+.account_nick {
+  padding-top: 4px;
+  color: #656565;
+  float: left;
+}
+
+.account_name, .account_nick {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.account_remove {
+  float: left;
+  width: 12px;
+  height: 12px;
+  background-image: url('../images/close.svg');
+  opacity: 0;
+  visibility: hidden;
+  cursor: pointer;
+  transition: opacity .3s, visibility .3s;
+}
+
+.account_item:not(.account_item_active):hover .account_remove {
+  opacity: .5;
+  visibility: visible;
+}
+
+.account_deleted {
+  opacity: .6;
+}
+
+/* добавление юзера */
+
+.account_add_wrap {
+  width: 330px;
+  border-radius: 5px;
+  background-color: #fcfcfc;
+}
+
+.account_add {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 15px 0;
+}
+
+.password_wrap {
+  position: relative;
+  margin-top: 5px;
+  width: 250px;
+}
+
+.account_sms {
+  margin-top: 5px;
+}

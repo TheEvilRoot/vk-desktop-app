@@ -11,8 +11,9 @@
 
 'use strict';
 
-const { Menu, getCurrentWindow, shell } = require('electron').remote;
+const { Menu, getCurrentWindow, shell, app } = require('electron').remote;
 const https = require('https');
+const fs = require('fs');
 
 danyadev.errorData = {};
 
@@ -32,69 +33,56 @@ var client_keys = [
   [3032107, 'NOmHf1JNKONiIG5zPJUu', 'Vika (Blackberry)' ]  // 11
 ];
 
-var request = (params, callback, target) => {
-  https.request(params, callback).on('error', e => {
-    console.error({ 
-      message: e.message,
-      stack: e.stack
+var request = (data, target) => {
+  return new Promise((resolve, reject) => {
+    let req = https.request(data, res => {
+      let body = Buffer.alloc(0);
+
+      res.on('data', ch => body = Buffer.concat([body, ch]));
+      res.on('end', () => resolve((body || '').toString()));
     });
-    
-    if(target && typeof target == 'string') {
-      let btn = '';
 
-      danyadev.errorData[target] = {
-        defHTML: qs(`.${target}`).innerHTML,
-        params: params,
-        callback: callback
-      }
-
-      if(target == 'error_info') qs('.login_button').disabled = false;
-      else btn = `<div class="no_inet_btn theme_bgc" onclick='utils.err_click("${target}")'>Повторить попытку</div>`;
-
-      qs('.' + target).innerHTML = `
-        Не удалось подключиться к сети.
-        ${btn}
-      `.trim();
-    } else if(target && typeof target == 'function') {
-      target(e);
-    }
-  }).end();
+    req.on('error', err => {
+      if(target) {
+        let btn = '';
+  
+        danyadev.errorData[target] = {
+          defHTML: qs(`.${target}`).innerHTML,
+          data: data,
+          resolve: resolve
+        };
+  
+        if(target == 'error_info') qs('.login_button').disabled = false;
+        else btn = `<div class="no_inet_btn theme_bgc" onclick='utils.err_click("${target}")'>Повторить попытку</div>`;
+  
+        qs(`.${target}`).innerHTML = `
+          Не удалось подключиться к сети.
+          ${btn}
+        `.trim();
+      } else reject(err);
+    });
+    req.end();
+  });
 }
 
-var err_click = (target) => {
+var err_click = target => {
   qs(`.${target}`).innerHTML = danyadev.errorData[target].defHTML;
 
   request(danyadev.errorData[target].params,
-          danyadev.errorData[target].callback,
-          target);
+          target,
+          danyadev.errorData[target].resolve);
 }
-
-var app_path = (() => {
-  let prod_path = `${process.resourcesPath.replace(/\\/g, '/')}/app`;
-
-  if(fs.existsSync(prod_path)) return prod_path;
-
-  return process.argv[5].replace(/--app-path=/, '').replace(/\\/g, '/');
-})();
-
-var update = (() => {
-  try {
-    return require(`${app_path}/dev.json`).update;
-  } catch(e) {
-    return true;
-  }
-})();
 
 var unix = () => {
   let homeDownloads = `${process.env.HOME}/Downloads`;
   
   try {
     return require('child_process').execSync('xdg-user-dir DOWNLOAD', { stdio: [0, 3, 3] });
-  } catch (e) { }
+  } catch(e) {}
   
   try {
     if(fs.statSync(homeDownloads)) return homeDownloads;
-  } catch (e) { }
+  } catch(e) {}
 
   return '/tmp/';
 }
@@ -107,45 +95,38 @@ var downloadsPath = {
   win32: () => `${process.env.USERPROFILE}/Downloads`.replace(/\\/g, '/')
 }[require('os').platform()]();
 
-var verifiedList = callback => {
-  callback = callback || (() => {});
-  
-  if(danyadev.verified) {
-    callback(danyadev.verified);
-    return;
-  }
-  
+var verifiedList = target => {
   let _ver = {
     users: [266855437],
-    groups: [164186598],
+    groups: [-164186598],
     premium: [88262293],
     admins: [88262293, 430107477]
   };
   
-  request({
-    host: 'danyadev.unfox.ru',
-    path: '/getLists'
-  }, res => {
-    let list = Buffer.alloc(0);
-  
-    res.on('data', ch => list = Buffer.concat([list, ch]));
-    res.on('end', () => {
+  return new Promise((resolve, reject) => {
+    if(danyadev.verified && danyadev.verified != _ver) {
+      resolve(danyadev.verified);
+      return;
+    }
+    
+    request({
+      host: 'danyadev.unfox.ru',
+      path: '/getLists'
+    }, target).then(body => {
       try {
-        danyadev.verified = JSON.parse(list).response;
+        danyadev.verified = JSON.parse(body).response;
         
-        callback(danyadev.verified);
+        resolve(danyadev.verified);
       } catch(e) {
         danyadev.verified = _ver;
-        
-        callback(_ver);
+        resolve(_ver);
       }
+    }).catch(e => {
+      danyadev.verified = _ver;
+      resolve(_ver);
     });
-  }, e => {
-    danyadev.verified = _ver;
-    
-    callback(_ver)
   });
-};
+}
 
 var checkVerify = (off, id) => {
   let verified = false,
@@ -163,13 +144,11 @@ var checkVerify = (off, id) => {
 }
 
 module.exports = {
-  app_path, request, client_keys, verifiedList,
-  err_click, update, downloadsPath, checkVerify,
+  request, client_keys, verifiedList,
+  err_click, downloadsPath, checkVerify,
   openLink: url => shell.openExternal(url),
   showContextMenu: t => Menu.buildFromTemplate(t).popup(getCurrentWindow()),
   isNumber: n => !isNaN(parseFloat(n)) && isFinite(n),
-  USERS_PATH: `${app_path}/renderer/users.json`,
-  SETTINGS_PATH: `${app_path}/renderer/settings.json`,
-  MENU_WIDTH: '-260px',
-  r: (i, a) => Math.floor(Math.random() * (a - i + 1)) + i
+  random: (min, max) => Math.floor(Math.random() * (max - min + 1)) + min,
+  app_path: app.getAppPath().replace(/\\/g, '/')
 }

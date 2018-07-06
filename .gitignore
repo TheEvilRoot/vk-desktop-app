@@ -1,4 +1,2 @@
 core
-dev.json
-renderer/users.json
-renderer/settings.json
+node_modules
