@@ -27,7 +27,17 @@ try {
 } catch(e) {};
 
 const { app, BrowserWindow } = require('electron');
-
+const applicationMenu = [
+    {
+      label: 'Edit',
+      submenu: [
+        {role: 'undo'},{role: 'redo'},{type: 'separator'},
+        {role: 'cut'},{role: 'copy'},{role: 'paste'},
+        {role: 'pasteandmatchstyle'},{role: 'delete'},
+        {role: 'selectall'}
+      ]
+  }
+];
 app.commandLine.appendSwitch('disable-mojo-local-storage');
 
 app.on('window-all-closed', app.quit);
@@ -56,8 +66,10 @@ app.on('ready', () => {
     
     if(maximized) win.maximize();
   });
-
-  win.setMenu(null);
+  if(process.platform === "darwin")
+    Menu.setApplicationMenu(Menu.buildFromTemplate(applicationMenu));
+  else
+    win.setMenu(null);
   win.loadFile('renderer/index.html');
   win.on('ready-to-show', win.show);
   win.on('closed', () => win = null);
