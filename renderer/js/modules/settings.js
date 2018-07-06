@@ -20,11 +20,10 @@ var settings_tabs = qs('.settings_tabs'),
 settings_tabs.children[0].classList.add('settings_tab_active');
 settings_content_block.children[0].classList.add('settings_content_active');
 
-[].slice.call(settings_tabs.children).forEach(item => {
-  item.addEventListener('click', function() {
-    if(qs('.settings_tab_active') == this) return;
-    let tab = [].slice.call(settings_tabs.children).indexOf(this);
-
+[].slice.call(settings_tabs.children).forEach((item, tab) => {
+  item.addEventListener('click', () => {
+    if(qs('.settings_tab_active') == item) return;
+    
     qs('.settings_tab_active').classList.remove('settings_tab_active');
     qs('.settings_content_active').classList.remove('settings_content_active');
 
@@ -139,13 +138,13 @@ qs('.notify_updates').addEventListener('click', () => {
 qs('.logout').addEventListener('click', () => {
   dialog.showMessageBox({
     type: 'info',
-    buttons: ['ОК', 'Отмена'],
+    buttons: ['Отмена', 'ОК'],
     title: 'Выход',
     message: 'Вы действительно хотите выйти?',
     detail: 'Будет открыта форма входа',
     noLink: true
   }, btn => {
-    if(!btn) {
+    if(btn) {
       settings.theme = 'white';
       settings.def_tab = 0;
       settings.save();
@@ -161,21 +160,14 @@ qs('.logout').addEventListener('click', () => {
 // отключить пункт меню = сделать его display: none;
 
 initSelect('.change_theme', (sel, list, selected) => {
-  let optionBlock = '',
-      themeList = require('fs').readdirSync(`${utils.app_path}/renderer/themes`)
-                               .map(item => item.replace(/\.css/, ''));
+  let themeID = ['white', 'dark'].indexOf(settings.theme);
 
-  themeList.unshift('white');
-
-  let themeID = themeList.indexOf(settings.theme);
-
-  for(let i=0; i<themeList.length; i++) {
-    optionBlock += `<div class="option theme_block">${themeList[i]}</div>`
-  }
-
-  list.innerHTML = optionBlock;
+  list.innerHTML = `
+    <div class="option theme_block">white</div>
+    <div class="option theme_block">dark</div>
+  `.trim();
+  
   selected.innerHTML = settings.theme;
-
   list.children[themeID].classList.add('active');
 }, event => {
   settings.theme = event.target.innerHTML;

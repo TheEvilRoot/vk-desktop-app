@@ -59,13 +59,18 @@ var danyadev = {
   user: users.list.find(u => u.active == true)
 };
 
+var theme = type => {
+  if(!type) qs('body').classList.add(settings.theme);
+  else if(type == 'white') qs('body').classList.remove('dark');
+  else qs('body').classList.add('dark');
+}
+
 const qs = e => document.querySelector(e);
 const qsa = e => document.querySelectorAll(e);
 const escape = t => t.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const utils = require('./js/utils');
 const modal = require('./js/modal');
 const vkapi = require('./js/vkapi');
-const theme = require('./js/theme');
 const update = require('./js/update');
 
 theme();

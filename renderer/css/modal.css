@@ -208,6 +208,7 @@
   height: 60px;
   padding: 5px;
   margin-bottom: 8px;
+  transition: background-color .2s;
 }
 
 .account_item_active .account_image_wrap:after {
@@ -218,8 +219,8 @@
   bottom: 2%; 
   right: 2%; 
   border: 2px solid #fff; 
-  height: 10px; 
-  width: 10px; 
+  height: 8px; 
+  width: 8px; 
 } 
 
 .account_item:hover {

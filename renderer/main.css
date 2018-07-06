@@ -8,10 +8,7 @@
    github: https://github.com/danyadev/vk-desktop-app
 */
 
-@import "themes/blue.css";
-@import "themes/dark.css";
-@import "themes/twilight.css";
-
+@import "css/dark_theme.css";
 @import "css/ui.css";
 @import "css/modal.css";
 @import "css/auth.css";

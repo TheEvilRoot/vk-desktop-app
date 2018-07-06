@@ -152,14 +152,14 @@ var account = {
     });
     
     account.modal.innerHTML = `
-      <div class="account_list_wrap theme_block">
+      <div class="account_list_wrap">
         <div class="modal_header">
           <div class="modal_header__title">Выберите аккаунт</div>
           <div class="modal_header__close_wrap">
             <div class="modal_header__close"></div>
           </div>
         </div>
-        <div class="account_list">
+        <div class="account_list theme_bgc">
           ${users_list.innerHTML}
         </div>
         <div class="modal_bottom">
@@ -259,7 +259,7 @@ var auth = {
     auth.modal.classList.add('modal');
     
     auth.modal.innerHTML = `
-      <div class="account_add_wrap">
+      <div class="account_add_wrap theme_bgc">
         <div class="modal_header">
           <div class="modal_header__title">Добавить аккаунт</div>
           <div class="modal_header__close_wrap">
