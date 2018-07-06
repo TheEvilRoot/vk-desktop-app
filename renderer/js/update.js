@@ -91,15 +91,16 @@ var check = async () => {
     detail: `Список изменений:\n${changes}\n\nОбновиться до версии ${lastV}?`,
     checkboxLabel: 'Больше не показывать',
     noLink: true
-  }, (cancel, noNotify) => {
+  }, (ok, noNotify) => {
     if(noNotify) {
       settings.notify_updates = false;
       settings.save();
     }
     
-    if(cancel) {
+    if(ok) {
       update_item.remove();
       update();
+      qs('.menu_list').style.height = 'calc(100vh - 125px)';
     }
   });
 }
@@ -120,8 +121,8 @@ var update = async () => {
         message: 'Обновление завершено',
         detail: 'Для обновления необходимо перезагрузить приложение.\nПродолжить?',
         noLink: true
-      }, btn => {
-        if(btn) {
+      }, ok => {
+        if(ok) {
           app.relaunch();
           app.exit();
         }
