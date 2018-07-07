@@ -20,6 +20,20 @@
   color: #c2c2c2;
 }
 
+.dark .window_header {
+  background-color: #444d5c;
+}
+
+.dark .content {
+  border: 1px solid #444d5c;
+  border-top: none;
+}
+
+.dark .header {
+  border-left: 1px solid #444d5c;
+  border-right: 1px solid #444d5c;
+}
+
 .dark .open_menu .open_menu_icon,
 .dark .open_menu .open_menu_icon::before,
 .dark .open_menu .open_menu_icon::after {

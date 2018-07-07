@@ -94,15 +94,51 @@ var toggleMenu = () => {
     menu.style.transform = 'translateX(0px)';
     qs('.content').addEventListener('click', toggleMenu);
   } else {
-    menu.style.transform = 'translateX(-260px)';
+    menu.style.transform = '';
     qs('.content').removeEventListener('click', toggleMenu);
   }
 }
+
+if(getCurrentWindow().isMaximized()) {
+  qs('.window_header_button.restore').style.display = '';
+  qs('.window_header_button.maximize').style.display = 'none';
+} else {
+  qs('.window_header_button.restore').style.display = 'none';
+  qs('.window_header_button.maximize').style.display = '';
+}
+
+getCurrentWindow().on('maximize', () => {
+  qs('.window_header_button.restore').style.display = '';
+  qs('.window_header_button.maximize').style.display = 'none';
+});
+
+getCurrentWindow().on('unmaximize', () => {
+  qs('.window_header_button.restore').style.display = 'none';
+  qs('.window_header_button.maximize').style.display = '';
+});
+
+qs('.window_header_button.minimize').addEventListener('click', () => {
+  getCurrentWindow().minimize();
+});
+
+qs('.window_header_button.maximize').addEventListener('click', () => {
+  getCurrentWindow().maximize();
+});
+
+qs('.window_header_button.restore').addEventListener('click', () => {
+  getCurrentWindow().restore();
+});
+
+qs('.window_header_button.close').addEventListener('click', () => {
+  getCurrentWindow().close();
+});
 
 window.addEventListener('beforeunload', () => {
   settings.window = getCurrentWindow().getBounds();
   settings.volume = qs('.audio').volume;
   settings.save();
+  
+  getCurrentWindow().removeAllListeners();
 });
 
 open_menu.addEventListener('click', toggleMenu);

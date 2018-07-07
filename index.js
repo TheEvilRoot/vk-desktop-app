@@ -36,7 +36,8 @@ app.on('ready', () => {
   win = new BrowserWindow({
     minWidth: 640,
     minHeight: 480,
-    show: false
+    show: false,
+    frame: false
   });
   
   win.webContents.executeJavaScript(`[localStorage.getItem('settings'), screen.availWidth, screen.availHeight]`)

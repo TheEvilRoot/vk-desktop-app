@@ -2,11 +2,20 @@
 <html>
   <head>
     <meta charset='utf-8'>
-    <title>VK Desktop</title>
     <link rel='stylesheet' href='main.css'>
     <script src='main.js' defer></script>
   </head>
   <body>
+    <div class="window_header">
+      <div class="window_header_drag"></div>
+      <div class="window_header_name">VK Desktop</div>
+      <div class="window_header_buttons">
+        <div class="window_header_button minimize"></div>
+        <div class="window_header_button maximize"></div>
+        <div class="window_header_button restore"></div>
+        <div class="window_header_button close"></div>
+      </div>
+    </div>
     <div class="wrapper_content">
       <div class="header theme_block">
         <div class="open_menu"><div class="open_menu_icon"></div></div>
@@ -69,9 +78,8 @@
           </div>
         </div>
         <div class="tab_content">
-          <div class="messages_list">
-            <div class="block">Скоро</div>
-          </div>
+          <div class="messages_dialogs"></div>
+          <div class="messages_history"></div>
         </div>
         <div class="tab_content">
           <div class="content_audio">
