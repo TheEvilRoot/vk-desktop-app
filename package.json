@@ -2,7 +2,6 @@
   "main": "index.js",
   "name": "vk-desktop-app",
   "version": "0.5.6",
-  "build": 1,
   "description": "Клиент ВКонтакте для Windows, Mac и Linux",
   "author": "danyadev",
   "license": "Apache 2.0",

@@ -50,7 +50,7 @@ var init = user => {
     code: `
     return {
       m: API.messages.getLongPollServer({ lp_version: 3 }),
-      u: API.users.get({ fields: "status,photo_100,verified,screen_name" }),
+      u: API.users.get({ fields: "status,photo_100,verified,screen_name,sex" }),
       a: API.messages.allowMessagesFromGroup({ group_id: 164186598, key: "VK_Desktop" })
     };`.trim().replace(/\n/g, '')
   }).then(data => {
@@ -94,8 +94,9 @@ var init = user => {
       first_name: res.first_name,
       last_name: res.last_name,
       photo_100: res.photo_100,
-      status: res.status,
-      v: `${p.version} (build ${p.build})`,
+      screen_name: danyadev.user.screen_name,
+      v: p.version,
+      sex: res.sex,
       t: `${time.toLocaleString()}:${time.getMilliseconds()}`
     });
     

@@ -20,17 +20,17 @@ danyadev.errorData = {};
 var audiolist_info = qs('.audiolist_info');
 
 var client_keys = [
-  [2274003, 'hHbZxrka2uZ6jB1inYsH', 'Android'           ], // 0
-  [3140623, 'VeWdmVclDCtn6ihuP1nt', 'iPhone'            ], // 1
-  [3682744, 'mY6CDUswIVdJLCD3j15n', 'iPad'              ], // 2
-  [3697615, 'AlVXZFMUqyrnABp8ncuU', 'Windows'           ], // 3
-  [2685278, 'lxhD8OD7dMsqtXIm5IUY', 'Kate Mobile'       ], // 4
-  [5027722, 'Skg1Tn1r2qEbbZIAJMx3', 'VK Messenger'      ], // 5
-  [4580399, 'wYavpq94flrP3ERHO4qQ', 'Snapster (Android)'], // 6
-  [2037484, 'gpfDXet2gdGTsvOs7MbL', 'Symbian (Nokia)'   ], // 7
-  [3502557, 'PEObAuQi6KloPM4T30DV', 'Windows Phone'     ], // 9
-  [3469984, 'kc8eckM3jrRj8mHWl9zQ', 'Lynt'              ], // 10
-  [3032107, 'NOmHf1JNKONiIG5zPJUu', 'Vika (Blackberry)' ]  // 11
+  [2274003, 'hHbZxrka2uZ6jB1inYsH', 'Android'      ], // 0
+  [3140623, 'VeWdmVclDCtn6ihuP1nt', 'iPhone'       ], // 1
+  [3682744, 'mY6CDUswIVdJLCD3j15n', 'iPad'         ], // 2
+  [3697615, 'AlVXZFMUqyrnABp8ncuU', 'Windows'      ], // 3
+  [2685278, 'lxhD8OD7dMsqtXIm5IUY', 'Kate Mobile'  ], // 4
+  [5027722, 'Skg1Tn1r2qEbbZIAJMx3', 'VK Messenger' ], // 5
+  [4580399, 'wYavpq94flrP3ERHO4qQ', 'Snapster'     ], // 6
+  [2037484, 'gpfDXet2gdGTsvOs7MbL', 'Symbian'      ], // 7
+  [3502557, 'PEObAuQi6KloPM4T30DV', 'Windows Phone'], // 9
+  [3469984, 'kc8eckM3jrRj8mHWl9zQ', 'Lynt'         ], // 10
+  [3032107, 'NOmHf1JNKONiIG5zPJUu', 'Vika'         ]  // 11
 ];
 
 var request = (data, target) => {
@@ -134,11 +134,7 @@ var checkVerify = (off, id) => {
           danyadev.verified.groups.includes(id),
       type = p ? 'gold' : 'blue';
   
-  if(danyadev.verified.users.includes(id) || p) {
-    verified = true;
-  }
-  
-  if(off) verified = true;
+  if(off || danyadev.verified.users.includes(id) || p) verified = true;
   
   return [verified, type];
 }

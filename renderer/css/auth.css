@@ -65,6 +65,7 @@
 .login_input, .password_input input {
   display: block;
   margin-bottom: 8px;
+  padding-right: 28px;
 }
 
 .show_password, .account_show_password {

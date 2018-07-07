@@ -11,9 +11,7 @@
 
 'use strict';
 
-var load = () => {
-  console.log('photos loaded');
-}
+var load = () => {}
 
 module.exports = {
   load

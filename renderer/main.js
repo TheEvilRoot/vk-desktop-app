@@ -48,11 +48,11 @@ var settings = Object.assign({
   save: () => localStorage.setItem('settings', JSON.stringify(settings)),
   window: getCurrentWindow().getBounds(),
   volume: 1,
-  def_tab: 0,
+  def_tab: 1,
   theme: 'white',
   update: true,
-  branch: 'master',
-  notify_updates: true
+  notify_updates: true,
+  beta: false
 }, JSON.parse(localStorage.getItem('settings') || '{}'));
 
 var danyadev = {
@@ -76,8 +76,6 @@ const update = require('./js/update');
 theme();
 update.check();
 
-var updateTimer = setInterval(update.check, 1000 * 60 * 5);
-
 var header = qs('.header'),
     content = qs('.content'),
     wrapper_content = qs('.wrapper_content'),
@@ -86,17 +84,18 @@ var header = qs('.header'),
     menu = qs('.menu'),
     account_icon = qs('.acc_icon'),
     settings_item = qs('.settings_item'),
-    menu_list = [qs('.menu_account_item')];
+    menu_list = [qs('.menu_account_item')],
+    updateTimer = setInterval(update.check, 1000 * 60 * 1);
 
 var toggleMenu = () => {
-  qs('.content_hide').classList.toggle('content_hide_active');
+  qs('.content').classList.toggle('content_hide');
   
-  if(menu.style.transform != 'translateX(0px)') {
+  if(qs('.content').classList.contains('content_hide')) {
     menu.style.transform = 'translateX(0px)';
-    qs('.content_hide').addEventListener('click', toggleMenu);
+    qs('.content').addEventListener('click', toggleMenu);
   } else {
     menu.style.transform = 'translateX(-260px)';
-    qs('.content_hide').removeEventListener('click', toggleMenu);
+    qs('.content').removeEventListener('click', toggleMenu);
   }
 }
 

@@ -85,7 +85,7 @@ vkapi.method('account.getProfileInfo', null).then(data => {
   qs('.settings_nick').value = data.response.screen_name || `id${danyadev.user.id}`;
   
   if(settings.update) qs('.check_updates').classList.add('on');
-  if(settings.update && settings.branch == 'dev') qs('.get_beta_versions').classList.add('on');
+  if(settings.update && settings.beta) qs('.get_beta_versions').classList.add('on');
   if(settings.notify_updates) qs('.notify_updates').classList.add('on');
 }, 'settings_main_err');
 
@@ -100,7 +100,7 @@ qs('.check_updates').addEventListener('click', () => {
   } else {
     settings.update = true;
     
-    if(settings.branch == 'dev') {
+    if(settings.beta) {
       qs('.get_beta_versions').classList.add('on');
     }
   }
@@ -111,13 +111,11 @@ qs('.check_updates').addEventListener('click', () => {
 
 qs('.get_beta_versions').addEventListener('click', () => {
   if(qs('.get_beta_versions').classList.contains('on')) {
-    settings.branch = 'master';
+    settings.beta = false;
   } else {
-    settings.branch = 'dev';
+    settings.beta = true;
     
-    if(!qs('.check_updates').classList.contains('on')) {
-      qs('.check_updates').classList.add('on');
-    }
+    qs('.check_updates').classList.add('on');
   }
   
   settings.save();

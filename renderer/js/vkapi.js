@@ -15,13 +15,14 @@ const https = require('https');
 const fs = require('fs');
 const querystring = require('querystring');
 const { getCurrentWindow } = require('electron').remote;
-const API_VERSION = '5.80';
+const API_VERSION = '5.83';
 
 var toURL = obj => querystring.stringify(obj);
 
 var method = (method_name, params, target, _resolve) => {
   params = params || {};
   params.v = params.v || API_VERSION;
+  params.lang = params.lang || 'ru';
 
   let user = users.list.find(u => u.active == true),
       id = user ? user.id : null;
@@ -82,7 +83,8 @@ var auth = (params, target, _resolve) => {
     scope: 'all',
     '2fa_supported': true,
     force_sms: true,
-    v: API_VERSION
+    v: API_VERSION,
+    lang: 'ru'
   }
 
   if(params.captcha_sid) {

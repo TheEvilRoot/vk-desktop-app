@@ -16,6 +16,8 @@
 const { BrowserWindow } = require('electron').remote;
 const https = require('https');
 
+var GET_AUDIO_ERROR = false;
+
 danyadev.audio = {};
 
 var audio = qs('.audio'),
@@ -53,21 +55,26 @@ var load = () => {
   vkapi.method('audio.get', null, 'audiolist_info')
   .then(data => {
     if(data.error) {
-      qs('.audiolist_info').innerHTML = 'Обход блокировки аудио...';
-      
-      vkapi.method('auth.refreshToken', {
-        access_token: danyadev.user.access_token,
-        receipt: 'JSv5FBbXbY:APA91bF2K9B0eh61f2WaTZvm62GOHon3-vElmVq54ZOL5PHpFkIc85WQUxUH_wae8YEUKkEzLCcUC5V4bTWNNPbjTxgZRvQ-PLONDMZWo_6hwiqhlMM7gIZHM2K2KhvX-9oCcyD1ERw4'
-      }, 'audiolist_info').then(ref => {
-        danyadev.user.access_token = ref.response.token;
+      if(GET_AUDIO_ERROR) {
+        qs('.audiolist_info').innerHTML = `Неизвестная ошибка. Повторите попытку позже\n(${JSON.stringify(data.error)})`;
+      } else {
+        GET_AUDIO_ERROR = true;
+        qs('.audiolist_info').innerHTML = 'Обход блокировки аудио...';
         
-        let userIndex = users.list.indexOf(danyadev.user);
-        
-        users.list[userIndex] = danyadev.user;
-        users.save();
-        
-        load();
-      });
+        vkapi.method('auth.refreshToken', {
+          access_token: danyadev.user.access_token,
+          receipt: 'JSv5FBbXbY:APA91bF2K9B0eh61f2WaTZvm62GOHon3-vElmVq54ZOL5PHpFkIc85WQUxUH_wae8YEUKkEzLCcUC5V4bTWNNPbjTxgZRvQ-PLONDMZWo_6hwiqhlMM7gIZHM2K2KhvX-9oCcyD1ERw4'
+        }, 'audiolist_info').then(ref => {
+          danyadev.user.access_token = ref.response.token;
+          
+          let userIndex = users.list.indexOf(danyadev.user);
+          
+          users.list[userIndex] = danyadev.user;
+          users.save();
+          
+          load();
+        });
+      }
       
       return;
     }

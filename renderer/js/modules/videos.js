@@ -11,9 +11,7 @@
 
 'use strict';
 
-var load = () => {
-  console.log('videos loaded');
-}
+var load = () => {}
 
 module.exports = {
   load

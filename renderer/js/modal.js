@@ -421,7 +421,6 @@ var auth = {
         account.modal.remove();
         account.modal = null;
         account.deleted = [];
-        account.toggle();
         auth.toggle();
       });
     });

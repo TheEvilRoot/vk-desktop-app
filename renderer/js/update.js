@@ -22,15 +22,9 @@ const auth = 'client_id=2cca2222a6f211d96eb5&client_secret=7ca0d642c52d3c5c4d793
 var check = async () => {
   if(!settings.update) return;
   
-  let branch = settings.branch || 'master',
-      isDev = branch == 'dev',
+  let branch = settings.beta ? 'dev' : 'master',
       ext_pkg = JSON.parse(await utils.request(`https://raw.githubusercontent.com/danyadev/vk-desktop-app/${branch}/package.json`)),
-      loc_pkg = require('./../../package.json'),
-      v0 = ext_pkg.version.split('.'), // с гитхаба
-      v1 = loc_pkg.version.split('.'), // текущая
-      thisVer = ext_pkg.version == loc_pkg.version,
-      isNewVer = v0[0] > v1[0] || v0[1] > v1[1] || v0[2] > v1[2],
-      isNewBuild = ext_pkg.build > loc_pkg.build;
+      loc_pkg = require('./../../package.json');
       
   let data = JSON.parse(await utils.request({
     host: 'api.github.com',
@@ -42,7 +36,7 @@ var check = async () => {
   
   let commitDate = new Date(data.commit.commit.committer.date).getTime(),
       normDate = commitDate < new Date().getTime() - 1000 * 60 * 5,
-      newVer = isNewVer || (thisVer && isNewBuild) || (isDev && data.commit.sha != settings.sha);
+      newVer = ext_pkg.version > loc_pkg.version || (settings.beta && data.commit.sha != settings.sha);
   
   if(!normDate || !newVer) return;
   
@@ -50,12 +44,11 @@ var check = async () => {
       versions = {}, changes = '', num = 0;
       
   changelog.split('\n\n').forEach(version => {
-    let v = version.match(/Версия ([^:]+)/)[1],
-        v0 = v.split('.');
+    let v = version.match(/Версия ([^:]+)/)[1];
     
     versions[v] = version.replace(/[^\n]+\n/, '');
     
-    if(v0[0] > v1[0] || v0[1] > v1[1] || v0[2] > v1[2]) {
+    if(v > loc_pkg.version) {
       changes += '\n' + versions[v];
     }
   });
@@ -87,13 +80,14 @@ var check = async () => {
     type: 'info',
     buttons: ['Отмена', 'ОК'],
     title: `Новая версия ${lastV}`,
-    message: `Доступна новая версия ${lastV}${isDev ? ' (бета)' : ''}`,
+    message: `Доступна новая версия ${lastV}`,
     detail: `Список изменений:\n${changes}\n\nОбновиться до версии ${lastV}?`,
     checkboxLabel: 'Больше не показывать',
     noLink: true
   }, (ok, noNotify) => {
     if(noNotify) {
       settings.notify_updates = false;
+      qs('.notify_updates').classList.remove('on')
       settings.save();
     }
     
@@ -143,7 +137,7 @@ var update = async () => {
     
     https.get({
       host: 'raw.githubusercontent.com',
-      path: `/danyadev/vk-desktop-app/${settings.branch}${encodeURIComponent(githubFile)}`
+      path: `/danyadev/vk-desktop-app/${settings.beta ? 'dev' : 'master'}${encodeURIComponent(githubFile)}`
     }, res => {
       res.pipe(fs.createWriteStream(filename));
       res.on('end', () => updateFile(++i));
@@ -160,7 +154,7 @@ var getGithubFiles = () => {
     let sendReq = async path => {
       let data = JSON.parse(await utils.request({
         host: 'api.github.com',
-        path: `/repos/danyadev/vk-desktop-app/contents/${path}?${auth}&ref=${settings.branch}`,
+        path: `/repos/danyadev/vk-desktop-app/contents/${path}?${auth}&ref=${settings.beta ? 'dev' : 'master'}`,
         headers: { 'User-Agent': 'VK Desktop' }
       }));
 

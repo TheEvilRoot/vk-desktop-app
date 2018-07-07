@@ -18,8 +18,7 @@ var news_list = qs('.news_list'),
     start_from = '';
 
 var load = () => {
-  utils.verifiedList('news_item_err')
-    .then(() => getNews());
+  utils.verifiedList('news_item_err').then(getNews);
 }
 
 // ads filters: friends_recomm,ads_app,ads_site,ads_post,ads_app_slider
@@ -82,7 +81,6 @@ var getNews = () => {
       
       let _v = utils.checkVerify(head_data.verified, isGroup ? -head_data.id : head_data.id),
           sex = head_data.sex == 1 ? 'a' : '';
-
       if(_v[0]) {
         head_name += `<img class="img_verified" src="images/verified_${_v[1]}.svg">`;
       }
@@ -90,13 +88,16 @@ var getNews = () => {
       if(item.type == 'post') {
         text += item.text;
         
-        text = text.replace(/([-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)/gi,
-                           '<div class="link" onclick="utils.openLink(\'$1\')">$1</div>')
-                   .replace(/\[(\w+)\|([^[]+)\]/g,
-                           '<div class="link" onclick="utils.openLink(\'https://vk.com/$1\')">$2</div>')
-                   .replace(/#([^# \n]+)/g,
-                           '<div class="link" onclick="utils.openLink(\'https://vk.com/feed?section=search&q=$1\')">#$1</div>');
-
+        text = text
+          .replace(/([-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?)/gi,
+                  '<div class="link" onclick="utils.openLink(\'$1\')">$1</div>')
+          .replace(/\[(\w+)\|([^[]+)\]/g,
+                  '<div class="link" onclick="utils.openLink(\'https://vk.com/$1\')">$2</div>')
+          .replace(/#([^# \n]+)/g, (all, found, index, allText) => {
+            if(index && !allText[--index].match(/[ \n]/)) return all;
+            return `<div class="link" onclick="utils.openLink(\'https://vk.com/feed?section=search&q=${found}\')">${all}</div>`;
+          });
+        
         if(item.copy_history) {
           if(text) text += '\n';
           
@@ -125,8 +126,6 @@ var getNews = () => {
             } else if(attach.type == 'article') {
               text += '*Статья*';
             } else if(attach.type == 'poll') {
-              console.log(attach.poll);
-              
               text += '*Голосование*';
             } else if(attach.type == 'video') {
               text += '*Видеозапись*';
@@ -142,6 +141,8 @@ var getNews = () => {
               text += '*Фотоальбом*';
             } else if (attach.type == 'page') {
               text += '*Вики-страница*';
+            } else if(attach.type == 'market') {
+              text += '*товар*';
             } else {
               text += `Неизвестный тип прикрепления.\n
                 Скиньте текст ниже <div class='link' onclick='utils.openLink("https://vk.com/danyadev")'>разработчику</div>:\n
