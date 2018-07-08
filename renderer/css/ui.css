@@ -25,6 +25,16 @@ img {
   transition: background-color .3s;
 }
 
+.window_header.mac {
+  display: flex;
+  justify-content:center;
+  align-items: center;
+}
+
+.window_header.mac .window_header_buttons {
+  display: none;
+}
+
 .window_header_drag {
   position: absolute;
   width: calc(100% - 4px - 144px);

@@ -99,6 +99,10 @@ var toggleMenu = () => {
   }
 }
 
+if(process.platform === "darwin") {
+  qs(".window_header").classList.add("mac");
+}
+
 if(getCurrentWindow().isMaximized()) {
   qs('.window_header_button.restore').style.display = '';
   qs('.window_header_button.maximize').style.display = 'none';
@@ -115,6 +119,16 @@ getCurrentWindow().on('maximize', () => {
 getCurrentWindow().on('unmaximize', () => {
   qs('.window_header_button.restore').style.display = 'none';
   qs('.window_header_button.maximize').style.display = '';
+});
+
+qs('.window_header_drag').addEventListener('dblclick', () => {
+  if(!getCurrentWindow().isFullScreen()) {
+    if (getCurrentWindow().isMaximized()) {
+      getCurrentWindow().unmaximize();
+    } else {
+      getCurrentWindow().maximize();
+    }
+  }
 });
 
 qs('.window_header_button.minimize').addEventListener('click', () => {

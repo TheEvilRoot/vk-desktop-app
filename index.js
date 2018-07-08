@@ -37,7 +37,8 @@ app.on('ready', () => {
     minWidth: 640,
     minHeight: 480,
     show: false,
-    frame: false
+    frame: false,
+    titleBarStyle: 'hiddenInset'
   });
   
   win.webContents.executeJavaScript(`[localStorage.getItem('settings'), screen.availWidth, screen.availHeight]`)
